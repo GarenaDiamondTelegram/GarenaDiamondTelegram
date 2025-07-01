@@ -8,6 +8,7 @@
     <title>Игра</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         .phone-frame {
             position: relative;
@@ -78,6 +79,19 @@
         .notifications-slide-up {
             animation: slideUp 0.5s ease-in-out forwards;
         }
+        .active-tab {
+            background: #2563eb !important;
+        }
+        .vip-user {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+        .booster-active {
+            border: 2px solid #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
         @keyframes enterAnimation {
             0% { transform: scale(1) translate(0, 0); opacity: 1; }
             100% { transform: scale(0.2) translate(-100px, -100px); opacity: 0; }
@@ -93,6 +107,13 @@
         @keyframes slideUp {
             0% { transform: translateY(0); opacity: 1; }
             100% { transform: translateY(-100%); opacity: 0; }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
@@ -134,10 +155,13 @@
                         </div>
                         <div class="diamond-panel">
                             <p id="diamond-balance" class="text-lg">0.0000 💎</p>
+                            <p id="user-level" class="text-sm text-gray-300">Уровень 1</p>
                         </div>
                     </div>
                     <button id="farm-btn" class="w-full p-2 bg-green-600 rounded hover:bg-green-700">Фармить 💎</button>
                     <button id="guild-btn" class="w-full p-2 bg-purple-600 rounded hover:bg-purple-700">Гильдия</button>
+                    <button id="shop-btn" class="w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700">🛒 Магазин</button>
+                    <button id="leaderboard-btn" class="w-full p-2 bg-blue-500 rounded hover:bg-blue-600">🏆 Рейтинг</button>
                     <button id="admin-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700 hidden">Админ-панель</button>
                 </div>
 
@@ -156,12 +180,33 @@
                 <!-- Profile Screen -->
                 <div id="profile-screen" class="hidden flex-col space-y-4">
                     <h1 class="text-2xl font-bold text-center">Профиль</h1>
-                    <p id="profile-username" class="text-lg"></p>
-                    <p id="profile-phone" class="text-lg"></p>
-                    <p id="profile-email" class="text-lg"></p>
-                    <p id="profile-ff-id" class="text-lg"></p>
-                    <p id="profile-password" class="text-lg"></p>
-                    <p id="profile-diamonds" class="text-lg"></p>
+                    
+                    <!-- Player Stats -->
+                    <div class="bg-gray-800 p-4 rounded-lg space-y-2">
+                        <p id="profile-username" class="text-lg font-bold"></p>
+                        <p id="profile-level" class="text-md"></p>
+                        <p id="profile-experience" class="text-sm"></p>
+                        <p id="profile-energy" class="text-sm"></p>
+                        <p id="profile-diamonds" class="text-lg"></p>
+                        <p id="profile-total-stats" class="text-sm text-gray-400"></p>
+                        <p id="profile-vip-status" class="text-sm"></p>
+                    </div>
+                    
+                    <!-- Account Info -->
+                    <div class="bg-gray-800 p-4 rounded-lg space-y-2">
+                        <h3 class="text-lg font-bold">Данные аккаунта</h3>
+                        <p id="profile-phone" class="text-sm"></p>
+                        <p id="profile-email" class="text-sm"></p>
+                        <p id="profile-ff-id" class="text-sm"></p>
+                        <p id="profile-password" class="text-sm"></p>
+                    </div>
+                    
+                    <!-- Active Boosters -->
+                    <div id="profile-boosters" class="bg-green-800 p-4 rounded-lg space-y-2 hidden">
+                        <h3 class="text-lg font-bold">🚀 Активные бустеры</h3>
+                        <div id="active-boosters-list"></div>
+                    </div>
+                    
                     <button id="delete-account-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700">Удалить аккаунт</button>
                     <button id="profile-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
                 </div>
@@ -205,6 +250,93 @@
                     <h1 class="text-2xl font-bold text-center">Заявки на вступление</h1>
                     <div id="guild-requests-list" class="flex-col space-y-2"></div>
                     <button id="requests-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
+                </div>
+
+                <!-- Shop Screen -->
+                <div id="shop-screen" class="hidden flex-col space-y-4">
+                    <h1 class="text-2xl font-bold text-center">🛒 Магазин</h1>
+                    <div class="diamond-panel">
+                        <p id="shop-diamond-balance" class="text-lg text-center">0.0000 💎</p>
+                    </div>
+                    
+                    <!-- Booster Section -->
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h2 class="text-xl font-bold mb-3 text-center">⚡ Бустеры</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-gray-700 p-3 rounded text-center">
+                                <div class="text-2xl mb-2">🚀</div>
+                                <p class="text-sm mb-2">x2 Скорость тапов</p>
+                                <p class="text-xs mb-2">30 минут</p>
+                                <button class="buy-booster-btn w-full p-1 bg-blue-600 rounded text-sm" data-type="speed" data-price="100" data-currency="stars">100 ⭐</button>
+                            </div>
+                            <div class="bg-gray-700 p-3 rounded text-center">
+                                <div class="text-2xl mb-2">💎</div>
+                                <p class="text-sm mb-2">x3 Алмазы</p>
+                                <p class="text-xs mb-2">1 час</p>
+                                <button class="buy-booster-btn w-full p-1 bg-green-600 rounded text-sm" data-type="diamonds" data-price="200" data-currency="stars">200 ⭐</button>
+                            </div>
+                            <div class="bg-gray-700 p-3 rounded text-center">
+                                <div class="text-2xl mb-2">⚡</div>
+                                <p class="text-sm mb-2">+50 Энергии</p>
+                                <p class="text-xs mb-2">Мгновенно</p>
+                                <button class="buy-booster-btn w-full p-1 bg-yellow-600 rounded text-sm" data-type="energy" data-price="0.1" data-currency="ton">0.1 TON</button>
+                            </div>
+                            <div class="bg-gray-700 p-3 rounded text-center">
+                                <div class="text-2xl mb-2">🔥</div>
+                                <p class="text-sm mb-2">Мега буст</p>
+                                <p class="text-xs mb-2">x5 все на 2ч</p>
+                                <button class="buy-booster-btn w-full p-1 bg-red-600 rounded text-sm" data-type="mega" data-price="0.5" data-currency="ton">0.5 TON</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Premium Section -->
+                    <div class="bg-gradient-to-r from-yellow-600 to-yellow-800 p-4 rounded-lg">
+                        <h2 class="text-xl font-bold mb-3 text-center">👑 Премиум</h2>
+                        <div class="space-y-3">
+                            <div class="bg-black bg-opacity-30 p-3 rounded">
+                                <p class="text-sm mb-2">VIP статус (30 дней)</p>
+                                <ul class="text-xs space-y-1 mb-3">
+                                    <li>• x2 к алмазам навсегда</li>
+                                    <li>• +100 энергии</li>
+                                    <li>• Эксклюзивная иконка</li>
+                                    <li>• Приоритет в гильдиях</li>
+                                </ul>
+                                <button class="buy-premium-btn w-full p-2 bg-yellow-500 rounded text-black font-bold" data-type="vip" data-price="2" data-currency="ton">2 TON</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="shop-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
+                </div>
+
+                <!-- Leaderboard Screen -->
+                <div id="leaderboard-screen" class="hidden flex-col space-y-4">
+                    <h1 class="text-2xl font-bold text-center">🏆 Рейтинг</h1>
+                    
+                    <!-- Tabs -->
+                    <div class="flex space-x-2">
+                        <button id="players-tab" class="flex-1 p-2 bg-blue-600 rounded active-tab">Игроки</button>
+                        <button id="guilds-tab" class="flex-1 p-2 bg-gray-600 rounded">Гильдии</button>
+                    </div>
+
+                    <!-- Players Leaderboard -->
+                    <div id="players-leaderboard" class="space-y-2">
+                        <div class="bg-gray-800 p-3 rounded">
+                            <h3 class="text-lg font-bold mb-2 text-center">👑 Топ игроков</h3>
+                            <div id="players-ranking" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Guilds Leaderboard -->
+                    <div id="guilds-leaderboard" class="hidden space-y-2">
+                        <div class="bg-gray-800 p-3 rounded">
+                            <h3 class="text-lg font-bold mb-2 text-center">🏰 Топ гильдий</h3>
+                            <div id="guilds-ranking" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <button id="leaderboard-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
                 </div>
 
                 <!-- Admin Panel Main Screen -->
@@ -259,6 +391,7 @@
         let users = JSON.parse(localStorage.getItem('users')) || [];
         let guilds = JSON.parse(localStorage.getItem('guilds')) || [];
         let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        let activeBoosters = JSON.parse(localStorage.getItem('activeBoosters')) || {};
 
         // DOM Elements
         const loadingScreen = document.getElementById('loading-screen');
@@ -270,12 +403,16 @@
         const guildScreen = document.getElementById('guild-screen');
         const guildMembersScreen = document.getElementById('guild-members-screen');
         const guildRequestsScreen = document.getElementById('guild-requests-screen');
+        const shopScreen = document.getElementById('shop-screen');
+        const leaderboardScreen = document.getElementById('leaderboard-screen');
         const adminPanel = document.getElementById('admin-panel');
         const adminUsersScreen = document.getElementById('admin-users-screen');
         const adminGuildsScreen = document.getElementById('admin-guilds-screen');
         const registerBtn = document.getElementById('register-btn');
         const farmBtn = document.getElementById('farm-btn');
         const guildBtn = document.getElementById('guild-btn');
+        const shopBtn = document.getElementById('shop-btn');
+        const leaderboardBtn = document.getElementById('leaderboard-btn');
         const profileBtn = document.getElementById('profile-btn');
         const notificationsBtn = document.getElementById('notifications-btn');
         const notificationBadge = document.getElementById('notification-badge');
@@ -333,6 +470,18 @@
 
         // Always show loading screen on page load
         setTimeout(() => {
+            // Update existing users with new fields
+            users.forEach(user => {
+                if (!user.hasOwnProperty('energy')) user.energy = 100;
+                if (!user.hasOwnProperty('maxEnergy')) user.maxEnergy = 100;
+                if (!user.hasOwnProperty('level')) user.level = 1;
+                if (!user.hasOwnProperty('experience')) user.experience = 0;
+                if (!user.hasOwnProperty('vipUntil')) user.vipUntil = null;
+                if (!user.hasOwnProperty('totalTaps')) user.totalTaps = 0;
+                if (!user.hasOwnProperty('totalDiamonds')) user.totalDiamonds = user.diamonds || 0;
+            });
+            localStorage.setItem('users', JSON.stringify(users));
+            
             currentUserId = localStorage.getItem('currentUserId');
             if (currentUserId && users.find(u => u.id === currentUserId)) {
                 showMainMenu();
@@ -360,7 +509,14 @@
                     diamonds: 0,
                     taps: 0,
                     lastTapTime: null,
-                    guildId: null
+                    guildId: null,
+                    energy: 100,
+                    maxEnergy: 100,
+                    level: 1,
+                    experience: 0,
+                    vipUntil: null,
+                    totalTaps: 0,
+                    totalDiamonds: 0
                 };
                 users.push(user);
                 currentUserId = user.id;
@@ -414,6 +570,26 @@
                 mainMenu.classList.remove('enter-animation');
                 guildScreen.classList.remove('hidden');
                 updateGuildScreen();
+            }, 500);
+        });
+
+        shopBtn.addEventListener('click', () => {
+            mainMenu.classList.add('enter-animation');
+            setTimeout(() => {
+                mainMenu.classList.add('hidden');
+                mainMenu.classList.remove('enter-animation');
+                shopScreen.classList.remove('hidden');
+                updateShopScreen();
+            }, 500);
+        });
+
+        leaderboardBtn.addEventListener('click', () => {
+            mainMenu.classList.add('enter-animation');
+            setTimeout(() => {
+                mainMenu.classList.add('hidden');
+                mainMenu.classList.remove('enter-animation');
+                leaderboardScreen.classList.remove('hidden');
+                updateLeaderboard();
             }, 500);
         });
 
@@ -502,6 +678,41 @@
             }, 500);
         });
 
+        // Shop Navigation
+        document.getElementById('shop-back-btn').addEventListener('click', () => {
+            shopScreen.classList.add('exit-animation');
+            setTimeout(() => {
+                shopScreen.classList.add('hidden');
+                shopScreen.classList.remove('exit-animation');
+                showMainMenu();
+            }, 500);
+        });
+
+        // Leaderboard Navigation
+        document.getElementById('leaderboard-back-btn').addEventListener('click', () => {
+            leaderboardScreen.classList.add('exit-animation');
+            setTimeout(() => {
+                leaderboardScreen.classList.add('hidden');
+                leaderboardScreen.classList.remove('exit-animation');
+                showMainMenu();
+            }, 500);
+        });
+
+        // Leaderboard Tabs
+        document.getElementById('players-tab').addEventListener('click', () => {
+            document.getElementById('players-tab').classList.add('active-tab');
+            document.getElementById('guilds-tab').classList.remove('active-tab');
+            document.getElementById('players-leaderboard').classList.remove('hidden');
+            document.getElementById('guilds-leaderboard').classList.add('hidden');
+        });
+
+        document.getElementById('guilds-tab').addEventListener('click', () => {
+            document.getElementById('guilds-tab').classList.add('active-tab');
+            document.getElementById('players-tab').classList.remove('active-tab');
+            document.getElementById('guilds-leaderboard').classList.remove('hidden');
+            document.getElementById('players-leaderboard').classList.add('hidden');
+        });
+
         adminBackBtn.addEventListener('click', () => {
             adminPanel.classList.add('exit-animation');
             setTimeout(() => {
@@ -570,21 +781,82 @@
             }
         });
 
+        // Shop Logic
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('buy-booster-btn')) {
+                const type = e.target.getAttribute('data-type');
+                const price = parseFloat(e.target.getAttribute('data-price'));
+                const currency = e.target.getAttribute('data-currency');
+                buyBooster(type, price, currency);
+            }
+            if (e.target.classList.contains('buy-premium-btn')) {
+                const type = e.target.getAttribute('data-type');
+                const price = parseFloat(e.target.getAttribute('data-price'));
+                const currency = e.target.getAttribute('data-currency');
+                buyPremium(type, price, currency);
+            }
+        });
+
         // Farming Logic
         tapBtn.addEventListener('click', () => {
             const user = users.find(u => u.id === currentUserId);
             const now = Date.now();
+            
+            // Check energy
+            if (user.energy <= 0) {
+                alert('Недостаточно энергии! Подождите или купите энергию в магазине.');
+                return;
+            }
+
             if (!user.lastTapTime || now - user.lastTapTime >= 4 * 60 * 60 * 1000) {
                 user.taps = 0;
                 user.lastTapTime = now;
             }
 
             if (user.taps < 100) {
+                user.energy--;
                 user.taps++;
-                user.diamonds += 0.0001;
+                user.totalTaps++;
+                
+                let diamondGain = 0.0001;
+                
+                // Apply boosters
+                const userBoosters = activeBoosters[currentUserId] || {};
+                if (userBoosters.diamonds && userBoosters.diamonds > now) {
+                    diamondGain *= 3;
+                }
+                if (userBoosters.mega && userBoosters.mega > now) {
+                    diamondGain *= 5;
+                }
+                
+                // VIP bonus
+                if (user.vipUntil && user.vipUntil > now) {
+                    diamondGain *= 2;
+                }
+                
+                user.diamonds += diamondGain;
+                user.totalDiamonds += diamondGain;
+                user.experience += 1;
+                
+                // Level up check
+                const newLevel = Math.floor(user.experience / 100) + 1;
+                if (newLevel > user.level) {
+                    user.level = newLevel;
+                    user.maxEnergy += 10;
+                    user.energy = user.maxEnergy;
+                    notifications.push({
+                        id: generateUUID(),
+                        userId: currentUserId,
+                        message: `Поздравляем! Вы достигли ${newLevel} уровня! +10 энергии!`,
+                        timestamp: new Date().toLocaleString()
+                    });
+                }
+                
                 localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('notifications', JSON.stringify(notifications));
                 updateFarmScreen();
                 updateDiamondBalance();
+                updateNotificationBadge();
             } else {
                 tapBtn.disabled = true;
                 cooldown.classList.remove('hidden');
@@ -848,6 +1120,91 @@
             }
         });
 
+        // Payment functions
+        function buyBooster(type, price, currency) {
+            if (currency === 'ton') {
+                // TON payment
+                TelegramWebApp.openInvoice(`https://t.me/$TonTestPayBot?start=booster_${type}_${price}`, (status) => {
+                    if (status === 'paid') {
+                        applyBooster(type);
+                        alert('Бустер куплен и активирован!');
+                    } else {
+                        alert('Платеж отменен');
+                    }
+                });
+            } else if (currency === 'stars') {
+                // Telegram Stars payment
+                TelegramWebApp.openInvoice(`https://t.me/invoice/${generateInvoiceId(type, price)}`, (status) => {
+                    if (status === 'paid') {
+                        applyBooster(type);
+                        alert('Бустер куплен и активирован!');
+                    } else {
+                        alert('Платеж отменен');
+                    }
+                });
+            }
+        }
+
+        function buyPremium(type, price, currency) {
+            if (currency === 'ton') {
+                TelegramWebApp.openInvoice(`https://t.me/$TonTestPayBot?start=premium_${type}_${price}`, (status) => {
+                    if (status === 'paid') {
+                        applyPremium(type);
+                        alert('VIP статус активирован!');
+                    } else {
+                        alert('Платеж отменен');
+                    }
+                });
+            }
+        }
+
+        function applyBooster(type) {
+            const user = users.find(u => u.id === currentUserId);
+            const now = Date.now();
+            
+            if (!activeBoosters[currentUserId]) {
+                activeBoosters[currentUserId] = {};
+            }
+            
+            switch (type) {
+                case 'speed':
+                    activeBoosters[currentUserId].speed = now + (30 * 60 * 1000); // 30 minutes
+                    break;
+                case 'diamonds':
+                    activeBoosters[currentUserId].diamonds = now + (60 * 60 * 1000); // 1 hour
+                    break;
+                case 'energy':
+                    user.energy = Math.min(user.energy + 50, user.maxEnergy + 50);
+                    break;
+                case 'mega':
+                    activeBoosters[currentUserId].mega = now + (2 * 60 * 60 * 1000); // 2 hours
+                    break;
+            }
+            
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('activeBoosters', JSON.stringify(activeBoosters));
+            updateFarmScreen();
+        }
+
+        function applyPremium(type) {
+            const user = users.find(u => u.id === currentUserId);
+            const now = Date.now();
+            
+            if (type === 'vip') {
+                user.vipUntil = now + (30 * 24 * 60 * 60 * 1000); // 30 days
+                user.maxEnergy += 100;
+                user.energy = user.maxEnergy;
+            }
+            
+            localStorage.setItem('users', JSON.stringify(users));
+            updateProfileScreen();
+            updateFarmScreen();
+        }
+
+        function generateInvoiceId(type, price) {
+            return `${type}_${price}_${Date.now()}`;
+        }
+
         function showMainMenu() {
             loadingScreen.classList.add('hidden');
             registrationScreen.classList.add('hidden');
@@ -857,6 +1214,8 @@
             guildScreen.classList.add('hidden');
             guildMembersScreen.classList.add('hidden');
             guildRequestsScreen.classList.add('hidden');
+            shopScreen.classList.add('hidden');
+            leaderboardScreen.classList.add('hidden');
             adminPanel.classList.add('hidden');
             adminUsersScreen.classList.add('hidden');
             adminGuildsScreen.classList.add('hidden');
@@ -869,16 +1228,43 @@
             }
             updateDiamondBalance();
             updateNotificationBadge();
+            regenerateEnergy();
         }
 
         function updateFarmScreen() {
             const user = users.find(u => u.id === currentUserId);
             diamondCount.textContent = `${user.diamonds.toFixed(4)} 💎`;
-            tapCount.textContent = `Тапы: ${user.taps}/100`;
-            if (user.taps >= 100) {
+            tapCount.textContent = `Тапы: ${user.taps}/100 | Энергия: ${user.energy}/${user.maxEnergy}`;
+            
+            // Check active boosters
+            const now = Date.now();
+            const userBoosters = activeBoosters[currentUserId] || {};
+            let boosterText = '';
+            
+            if (userBoosters.diamonds && userBoosters.diamonds > now) {
+                boosterText += ' 💎x3';
+                tapBtn.classList.add('pulse-animation');
+            }
+            if (userBoosters.mega && userBoosters.mega > now) {
+                boosterText += ' 🔥x5';
+                tapBtn.classList.add('pulse-animation');
+            }
+            if (user.vipUntil && user.vipUntil > now) {
+                boosterText += ' 👑VIP';
+            }
+            
+            if (boosterText) {
+                tapCount.textContent += boosterText;
+            } else {
+                tapBtn.classList.remove('pulse-animation');
+            }
+            
+            if (user.taps >= 100 || user.energy <= 0) {
                 tapBtn.disabled = true;
-                cooldown.classList.remove('hidden');
-                startCooldown();
+                if (user.taps >= 100) {
+                    cooldown.classList.remove('hidden');
+                    startCooldown();
+                }
             } else {
                 tapBtn.disabled = false;
                 cooldown.classList.add('hidden');
@@ -887,12 +1273,67 @@
 
         function updateProfileScreen() {
             const user = users.find(u => u.id === currentUserId);
-            document.getElementById('profile-username').textContent = `Никнейм Telegram: ${user.username}`;
+            const now = Date.now();
+            const isVip = user.vipUntil && user.vipUntil > now;
+            
+            // Player Stats
+            document.getElementById('profile-username').textContent = `${user.username}${isVip ? ' 👑' : ''}`;
+            document.getElementById('profile-level').textContent = `Уровень: ${user.level}`;
+            document.getElementById('profile-experience').textContent = `Опыт: ${user.experience}/${user.level * 100}`;
+            document.getElementById('profile-energy').textContent = `Энергия: ${user.energy}/${user.maxEnergy}`;
+            document.getElementById('profile-diamonds').textContent = `Баланс: ${user.diamonds.toFixed(4)} 💎`;
+            document.getElementById('profile-total-stats').textContent = `Всего тапов: ${user.totalTaps} | Всего алмазов: ${user.totalDiamonds.toFixed(4)}`;
+            
+            // VIP Status
+            if (isVip) {
+                const vipEnd = new Date(user.vipUntil).toLocaleDateString();
+                document.getElementById('profile-vip-status').textContent = `👑 VIP до: ${vipEnd}`;
+                document.getElementById('profile-vip-status').className = 'text-sm text-yellow-400';
+                document.getElementById('profile-username').classList.add('vip-user');
+            } else {
+                document.getElementById('profile-vip-status').textContent = 'Обычный аккаунт';
+                document.getElementById('profile-vip-status').className = 'text-sm text-gray-400';
+            }
+            
+            // Account Info
             document.getElementById('profile-phone').textContent = `Телефон: ${user.phone}`;
             document.getElementById('profile-email').textContent = `Почта: ${user.email}`;
             document.getElementById('profile-ff-id').textContent = `Free Fire ID: ${user.ffId}`;
             document.getElementById('profile-password').textContent = `Пароль: ${user.password}`;
-            document.getElementById('profile-diamonds').textContent = `Баланс: ${user.diamonds.toFixed(4)} 💎`;
+            
+            // Active Boosters
+            const userBoosters = activeBoosters[currentUserId] || {};
+            const activeBoostersDiv = document.getElementById('active-boosters-list');
+            const profileBoostersDiv = document.getElementById('profile-boosters');
+            
+            activeBoostersDiv.innerHTML = '';
+            let hasActiveBoosters = false;
+            
+            Object.keys(userBoosters).forEach(boosterType => {
+                if (userBoosters[boosterType] > now) {
+                    hasActiveBoosters = true;
+                    const timeLeft = userBoosters[boosterType] - now;
+                    const minutes = Math.floor(timeLeft / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                    
+                    const boosterNames = {
+                        speed: '🚀 Ускорение тапов x2',
+                        diamonds: '💎 Утроенные алмазы x3',
+                        mega: '🔥 Мега буст x5'
+                    };
+                    
+                    const p = document.createElement('p');
+                    p.className = 'text-sm';
+                    p.textContent = `${boosterNames[boosterType] || boosterType}: ${minutes}м ${seconds}с`;
+                    activeBoostersDiv.appendChild(p);
+                }
+            });
+            
+            if (hasActiveBoosters) {
+                profileBoostersDiv.classList.remove('hidden');
+            } else {
+                profileBoostersDiv.classList.add('hidden');
+            }
         }
 
         function updateNotificationsScreen() {
@@ -1148,9 +1589,112 @@
             }
         }
 
+        function updateShopScreen() {
+            const user = users.find(u => u.id === currentUserId);
+            document.getElementById('shop-diamond-balance').textContent = `${user.diamonds.toFixed(4)} 💎`;
+        }
+
+        function updateLeaderboard() {
+            updatePlayersRanking();
+            updateGuildsRanking();
+        }
+
+        function updatePlayersRanking() {
+            const sortedUsers = [...users].sort((a, b) => b.totalDiamonds - a.totalDiamonds);
+            const playersRankingDiv = document.getElementById('players-ranking');
+            playersRankingDiv.innerHTML = '';
+            
+            sortedUsers.slice(0, 10).forEach((user, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-1';
+                
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
+                const isVip = user.vipUntil && user.vipUntil > Date.now();
+                
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-lg">${medal}</span>
+                        <span class="${isVip ? 'vip-user' : ''}">${user.username}${isVip ? ' 👑' : ''}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm">${user.totalDiamonds.toFixed(4)} 💎</div>
+                        <div class="text-xs text-gray-400">Уровень ${user.level}</div>
+                    </div>
+                `;
+                playersRankingDiv.appendChild(div);
+            });
+        }
+
+        function updateGuildsRanking() {
+            const guildStats = guilds.map(guild => {
+                const guildUsers = users.filter(u => u.guildId === guild.id);
+                const totalDiamonds = guildUsers.reduce((sum, u) => sum + u.totalDiamonds, 0);
+                const avgLevel = guildUsers.reduce((sum, u) => sum + u.level, 0) / guildUsers.length || 0;
+                const leader = users.find(u => u.id === guild.leaderId);
+                
+                return {
+                    ...guild,
+                    totalDiamonds,
+                    avgLevel: Math.round(avgLevel),
+                    memberCount: guildUsers.length,
+                    leaderName: leader ? leader.username : 'Неизвестно'
+                };
+            }).sort((a, b) => b.totalDiamonds - a.totalDiamonds);
+
+            const guildsRankingDiv = document.getElementById('guilds-ranking');
+            guildsRankingDiv.innerHTML = '';
+
+            guildStats.slice(0, 10).forEach((guild, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-1';
+                
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-lg">${medal}</span>
+                        <div>
+                            <div class="font-bold">${guild.name}</div>
+                            <div class="text-xs text-gray-400">Лидер: ${guild.leaderName}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm">${guild.totalDiamonds.toFixed(4)} 💎</div>
+                        <div class="text-xs text-gray-400">${guild.memberCount} участников</div>
+                    </div>
+                `;
+                guildsRankingDiv.appendChild(div);
+            });
+        }
+
+        function regenerateEnergy() {
+            const user = users.find(u => u.id === currentUserId);
+            if (user && user.energy < user.maxEnergy) {
+                setInterval(() => {
+                    if (user.energy < user.maxEnergy) {
+                        user.energy = Math.min(user.energy + 1, user.maxEnergy);
+                        localStorage.setItem('users', JSON.stringify(users));
+                        if (farmScreen && !farmScreen.classList.contains('hidden')) {
+                            updateFarmScreen();
+                        }
+                    }
+                }, 60000); // 1 energy per minute
+            }
+        }
+
         function updateDiamondBalance() {
             const user = users.find(u => u.id === currentUserId);
+            const now = Date.now();
+            const isVip = user.vipUntil && user.vipUntil > now;
+            
             diamondBalance.textContent = `${user.diamonds.toFixed(4)} 💎`;
+            document.getElementById('user-level').textContent = `Уровень ${user.level}${isVip ? ' 👑' : ''}`;
+            
+            if (isVip) {
+                document.getElementById('user-level').classList.add('vip-user');
+            }
         }
 
         function startCooldown() {
