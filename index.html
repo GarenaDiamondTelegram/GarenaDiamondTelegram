@@ -10,25 +10,65 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
-        .phone-frame {
+        .device-frame {
             position: relative;
-            width: 360px;
-            height: 740px;
             background: #000;
-            border-radius: 40px;
-            padding: 20px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
             overflow: hidden;
         }
-        .phone-screen {
+        
+        /* Мобильная рамка */
+        .mobile-frame {
+            width: 390px;
+            height: 844px;
+            border-radius: 40px;
+            padding: 20px;
+        }
+        
+        /* Компьютерная рамка */
+        .desktop-frame {
+            width: 1200px;
+            height: 800px;
+            border-radius: 12px;
+            padding: 15px;
+            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
+        }
+        
+        .device-screen {
             width: 100%;
             height: 100%;
             background: #1a1a1a;
-            border-radius: 20px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
-        .phone-frame::before {
+        
+        .mobile-screen {
+            border-radius: 20px;
+        }
+        
+        .desktop-screen {
+            border-radius: 8px;
+            background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 420px) {
+            .mobile-frame {
+                width: 95vw;
+                height: 90vh;
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-frame {
+                width: 95vw;
+                height: 90vh;
+                padding: 10px;
+            }
+        }
+        /* Элементы мобильной рамки */
+        .mobile-frame::before {
             content: '';
             position: absolute;
             top: 10px;
@@ -39,7 +79,7 @@
             background: #333;
             border-radius: 5px;
         }
-        .phone-frame::after {
+        .mobile-frame::after {
             content: '';
             position: absolute;
             bottom: 10px;
@@ -50,6 +90,31 @@
             background: #333;
             border-radius: 50%;
             border: 2px solid #555;
+        }
+        
+        /* Элементы десктопной рамки */
+        .desktop-frame::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            height: 25px;
+            background: #333;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+        
+        .desktop-frame::after {
+            content: '● ● ●';
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            color: #666;
+            font-size: 12px;
+            letter-spacing: 5px;
         }
         .diamond-panel {
             background: #2d3748;
@@ -116,11 +181,11 @@
             animation: pulse 2s infinite;
         }
     </style>
-</head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen w-screen overflow-x-hidden">
-    <div class="phone-frame">
-        <div class="phone-screen">
-            <div id="app" class="w-full p-4 sm:p-6">
+  </head>
+  <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen w-screen overflow-x-hidden">
+      <div id="device-container" class="device-frame">
+          <div id="device-screen" class="device-screen">
+              <div id="app" class="w-full p-4 sm:p-6">
                 <!-- Loading Screen -->
                 <div id="loading-screen" class="flex flex-col items-center justify-center h-screen">
                     <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
@@ -277,9 +342,9 @@
                             </div>
                             <div class="bg-gray-700 p-3 rounded text-center">
                                 <div class="text-2xl mb-2">⚡</div>
-                                <p class="text-sm mb-2">+50 Энергии</p>
+                                <p class="text-sm mb-2">+50 Тапов</p>
                                 <p class="text-xs mb-2">Мгновенно</p>
-                                <button class="buy-booster-btn w-full p-1 bg-yellow-600 rounded text-sm" data-type="energy" data-price="0.1" data-currency="ton">0.1 TON</button>
+                                <button class="buy-booster-btn w-full p-1 bg-yellow-600 rounded text-sm" data-type="taps" data-price="0.1" data-currency="ton">0.1 TON</button>
                             </div>
                             <div class="bg-gray-700 p-3 rounded text-center">
                                 <div class="text-2xl mb-2">🔥</div>
@@ -341,11 +406,136 @@
 
                 <!-- Admin Panel Main Screen -->
                 <div id="admin-panel" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Админ-панель</h1>
-                    <button id="admin-users-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Пользователи</button>
-                    <button id="admin-guilds-btn" class="w-full p-2 bg-purple-600 rounded hover:bg-purple-700">Гильдии</button>
-                    <button id="clear-db-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700">Очистить базу данных</button>
-                    <button id="admin-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
+                    <h1 class="text-2xl font-bold text-center">🔧 Админ-панель</h1>
+                    
+                    <!-- Статистика -->
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h3 class="text-lg font-bold mb-2">📊 Статистика</h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>Пользователей: <span id="admin-users-count">0</span></div>
+                            <div>Гильдий: <span id="admin-guilds-count">0</span></div>
+                            <div>Онлайн: <span id="admin-online-count">0</span></div>
+                            <div>VIP: <span id="admin-vip-count">0</span></div>
+                        </div>
+                    </div>
+                    
+                    <button id="admin-broadcast-btn" class="w-full p-2 bg-green-600 rounded hover:bg-green-700">📢 Рассылка</button>
+                    <button id="admin-users-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">👥 Пользователи</button>
+                    <button id="admin-guilds-btn" class="w-full p-2 bg-purple-600 rounded hover:bg-purple-700">🏰 Гильдии</button>
+                    <button id="admin-analytics-btn" class="w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700">📈 Аналитика</button>
+                    <button id="admin-settings-btn" class="w-full p-2 bg-gray-600 rounded hover:bg-gray-700">⚙️ Настройки</button>
+                    <button id="clear-db-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700">🗑️ Очистить БД</button>
+                    <button id="admin-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">← Назад</button>
+                </div>
+
+                <!-- Admin Broadcast Screen -->
+                <div id="admin-broadcast-screen" class="hidden flex-col space-y-4">
+                    <h1 class="text-2xl font-bold text-center">📢 Рассылка</h1>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm mb-2">Тип рассылки:</label>
+                            <select id="broadcast-type" class="w-full p-2 bg-gray-800 rounded text-white">
+                                <option value="all">Всем пользователям</option>
+                                <option value="vip">Только VIP</option>
+                                <option value="level">По уровню</option>
+                                <option value="guild">Участникам гильдий</option>
+                            </select>
+                        </div>
+                        
+                        <div id="broadcast-level-filter" class="hidden">
+                            <label class="block text-sm mb-2">Минимальный уровень:</label>
+                            <input type="number" id="broadcast-min-level" min="1" value="1" class="w-full p-2 bg-gray-800 rounded text-white">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm mb-2">Заголовок:</label>
+                            <input type="text" id="broadcast-title" placeholder="Заголовок уведомления" class="w-full p-2 bg-gray-800 rounded text-white">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm mb-2">Сообщение:</label>
+                            <textarea id="broadcast-message" placeholder="Текст сообщения..." rows="4" class="w-full p-2 bg-gray-800 rounded text-white"></textarea>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button id="send-broadcast-btn" class="flex-1 p-2 bg-green-600 rounded hover:bg-green-700">📤 Отправить</button>
+                            <button id="preview-broadcast-btn" class="flex-1 p-2 bg-blue-600 rounded hover:bg-blue-700">👁️ Превью</button>
+                        </div>
+                    </div>
+                    
+                    <button id="broadcast-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">← Назад</button>
+                </div>
+
+                <!-- Admin Analytics Screen -->
+                <div id="admin-analytics-screen" class="hidden flex-col space-y-4">
+                    <h1 class="text-2xl font-bold text-center">📈 Аналитика</h1>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">💎 Алмазы</h3>
+                            <div class="space-y-1 text-sm">
+                                <div>Всего добыто: <span id="total-diamonds">0</span> 💎</div>
+                                <div>Среднее на игрока: <span id="avg-diamonds">0</span> 💎</div>
+                                <div>Максимум у игрока: <span id="max-diamonds">0</span> 💎</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">🎯 Активность</h3>
+                            <div class="space-y-1 text-sm">
+                                <div>Всего тапов: <span id="total-taps">0</span></div>
+                                <div>Среднее на игрока: <span id="avg-taps">0</span></div>
+                                <div>Активных сегодня: <span id="active-today">0</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">🏆 Уровни</h3>
+                            <div id="level-distribution" class="space-y-1 text-sm"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="analytics-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">← Назад</button>
+                </div>
+
+                <!-- Admin Settings Screen -->
+                <div id="admin-settings-screen" class="hidden flex-col space-y-4">
+                    <h1 class="text-2xl font-bold text-center">⚙️ Настройки</h1>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">🎮 Игровые параметры</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm mb-1">Базовые тапы:</label>
+                                    <input type="number" id="setting-base-taps" value="100" min="50" class="w-full p-2 bg-gray-700 rounded text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1">Алмазов за тап:</label>
+                                    <input type="number" id="setting-diamonds-per-tap" value="0.0001" step="0.0001" class="w-full p-2 bg-gray-700 rounded text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1">Опыта за тап:</label>
+                                    <input type="number" id="setting-exp-per-tap" value="1" min="1" class="w-full p-2 bg-gray-700 rounded text-white">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">⏰ Временные настройки</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm mb-1">Кулдаун (часы):</label>
+                                    <input type="number" id="setting-cooldown-hours" value="4" min="1" max="24" class="w-full p-2 bg-gray-700 rounded text-white">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="save-settings-btn" class="w-full p-2 bg-green-600 rounded hover:bg-green-700">💾 Сохранить</button>
+                    </div>
+                    
+                    <button id="settings-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">← Назад</button>
                 </div>
 
                 <!-- Admin Users Screen -->
@@ -468,17 +658,40 @@
         const telegramUser = TelegramWebApp.initDataUnsafe.user;
         let telegramUsername = telegramUser ? (telegramUser.username || telegramUser.id.toString()) : 'Unknown';
 
+        // Определение типа устройства и установка рамки
+        function setupDeviceFrame() {
+            const container = document.getElementById('device-container');
+            const screen = document.getElementById('device-screen');
+            
+            // Проверяем размер экрана и является ли это мобильным устройством
+            const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                container.className = 'device-frame mobile-frame';
+                screen.className = 'device-screen mobile-screen';
+            } else {
+                container.className = 'device-frame desktop-frame';
+                screen.className = 'device-screen desktop-screen';
+            }
+        }
+
+        // Установка рамки при загрузке и изменении размера окна
+        setupDeviceFrame();
+        window.addEventListener('resize', setupDeviceFrame);
+
         // Always show loading screen on page load
         setTimeout(() => {
             // Update existing users with new fields
             users.forEach(user => {
-                if (!user.hasOwnProperty('energy')) user.energy = 100;
-                if (!user.hasOwnProperty('maxEnergy')) user.maxEnergy = 100;
                 if (!user.hasOwnProperty('level')) user.level = 1;
                 if (!user.hasOwnProperty('experience')) user.experience = 0;
                 if (!user.hasOwnProperty('vipUntil')) user.vipUntil = null;
                 if (!user.hasOwnProperty('totalTaps')) user.totalTaps = 0;
                 if (!user.hasOwnProperty('totalDiamonds')) user.totalDiamonds = user.diamonds || 0;
+                if (!user.hasOwnProperty('maxTaps')) user.maxTaps = 100 + (user.level - 1) * 25;
+                // Удаляем старые поля энергии
+                delete user.energy;
+                delete user.maxEnergy;
             });
             localStorage.setItem('users', JSON.stringify(users));
             
@@ -510,13 +723,12 @@
                     taps: 0,
                     lastTapTime: null,
                     guildId: null,
-                    energy: 100,
-                    maxEnergy: 100,
                     level: 1,
                     experience: 0,
                     vipUntil: null,
                     totalTaps: 0,
-                    totalDiamonds: 0
+                    totalDiamonds: 0,
+                    maxTaps: 100
                 };
                 users.push(user);
                 currentUserId = user.id;
@@ -620,6 +832,57 @@
                 adminGuildsScreen.classList.remove('hidden');
                 updateAdminGuildsScreen();
             }, 500);
+        });
+
+        // New Admin Navigation
+        document.getElementById('admin-broadcast-btn').addEventListener('click', () => {
+            adminPanel.classList.add('hidden');
+            document.getElementById('admin-broadcast-screen').classList.remove('hidden');
+        });
+
+        document.getElementById('admin-analytics-btn').addEventListener('click', () => {
+            adminPanel.classList.add('hidden');
+            document.getElementById('admin-analytics-screen').classList.remove('hidden');
+            updateAdminAnalytics();
+        });
+
+        document.getElementById('admin-settings-btn').addEventListener('click', () => {
+            adminPanel.classList.add('hidden');
+            document.getElementById('admin-settings-screen').classList.remove('hidden');
+        });
+
+        // Broadcast functionality
+        document.getElementById('broadcast-type').addEventListener('change', (e) => {
+            const levelFilter = document.getElementById('broadcast-level-filter');
+            if (e.target.value === 'level') {
+                levelFilter.classList.remove('hidden');
+            } else {
+                levelFilter.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('send-broadcast-btn').addEventListener('click', () => {
+            sendBroadcast();
+        });
+
+        document.getElementById('preview-broadcast-btn').addEventListener('click', () => {
+            previewBroadcast();
+        });
+
+        // Back buttons
+        document.getElementById('broadcast-back-btn').addEventListener('click', () => {
+            document.getElementById('admin-broadcast-screen').classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+        });
+
+        document.getElementById('analytics-back-btn').addEventListener('click', () => {
+            document.getElementById('admin-analytics-screen').classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+        });
+
+        document.getElementById('settings-back-btn').addEventListener('click', () => {
+            document.getElementById('admin-settings-screen').classList.add('hidden');
+            adminPanel.classList.remove('hidden');
         });
 
         backBtn.addEventListener('click', () => {
@@ -801,20 +1064,15 @@
         tapBtn.addEventListener('click', () => {
             const user = users.find(u => u.id === currentUserId);
             const now = Date.now();
-            
-            // Check energy
-            if (user.energy <= 0) {
-                alert('Недостаточно энергии! Подождите или купите энергию в магазине.');
-                return;
-            }
 
+            // Reset taps if cooldown period passed
             if (!user.lastTapTime || now - user.lastTapTime >= 4 * 60 * 60 * 1000) {
                 user.taps = 0;
                 user.lastTapTime = now;
             }
 
-            if (user.taps < 100) {
-                user.energy--;
+            // Check if user has taps remaining
+            if (user.taps < user.maxTaps) {
                 user.taps++;
                 user.totalTaps++;
                 
@@ -841,14 +1099,17 @@
                 // Level up check
                 const newLevel = Math.floor(user.experience / 100) + 1;
                 if (newLevel > user.level) {
+                    const oldMaxTaps = user.maxTaps;
                     user.level = newLevel;
-                    user.maxEnergy += 10;
-                    user.energy = user.maxEnergy;
+                    user.maxTaps = 100 + (newLevel - 1) * 25; // Увеличиваем тапы с уровнем
+                    const tapIncrease = user.maxTaps - oldMaxTaps;
+                    
                     notifications.push({
                         id: generateUUID(),
                         userId: currentUserId,
-                        message: `Поздравляем! Вы достигли ${newLevel} уровня! +10 энергии!`,
-                        timestamp: new Date().toLocaleString()
+                        message: `🎉 Поздравляем! Уровень ${newLevel}! Тапов: +${tapIncrease} (${user.maxTaps} всего)`,
+                        timestamp: new Date().toLocaleString(),
+                        read: false
                     });
                 }
                 
@@ -1397,7 +1658,7 @@
             const names = {
                 speed: 'Ускорение тапов x2',
                 diamonds: 'Утроенные алмазы x3',
-                energy: 'Дополнительная энергия +50',
+                taps: 'Дополнительные тапы +50',
                 mega: 'Мега буст x5'
             };
             return names[type] || type;
@@ -1495,8 +1756,8 @@
                 case 'diamonds':
                     activeBoosters[currentUserId].diamonds = now + (60 * 60 * 1000); // 1 hour
                     break;
-                case 'energy':
-                    user.energy = Math.min(user.energy + 50, user.maxEnergy + 50);
+                case 'taps':
+                    user.taps = Math.max(0, user.taps - 50); // Восстанавливаем 50 тапов
                     break;
                 case 'mega':
                     activeBoosters[currentUserId].mega = now + (2 * 60 * 60 * 1000); // 2 hours
@@ -1514,8 +1775,7 @@
             
             if (type === 'vip') {
                 user.vipUntil = now + (30 * 24 * 60 * 60 * 1000); // 30 days
-                user.maxEnergy += 100;
-                user.energy = user.maxEnergy;
+                user.maxTaps += 100; // Увеличиваем максимальные тапы
             }
             
             localStorage.setItem('users', JSON.stringify(users));
@@ -1525,6 +1785,135 @@
 
         function generateInvoiceId() {
             return `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        // Admin Functions
+        function sendBroadcast() {
+            const type = document.getElementById('broadcast-type').value;
+            const title = document.getElementById('broadcast-title').value.trim();
+            const message = document.getElementById('broadcast-message').value.trim();
+            const minLevel = parseInt(document.getElementById('broadcast-min-level').value) || 1;
+            
+            if (!title || !message) {
+                alert('Заполните заголовок и сообщение!');
+                return;
+            }
+            
+            let targetUsers = [];
+            const now = Date.now();
+            
+            switch (type) {
+                case 'all':
+                    targetUsers = users;
+                    break;
+                case 'vip':
+                    targetUsers = users.filter(u => u.vipUntil && u.vipUntil > now);
+                    break;
+                case 'level':
+                    targetUsers = users.filter(u => u.level >= minLevel);
+                    break;
+                case 'guild':
+                    targetUsers = users.filter(u => u.guildId);
+                    break;
+            }
+            
+            const notification = {
+                id: generateUUID(),
+                message: `📢 ${title}: ${message}`,
+                timestamp: new Date().toLocaleString(),
+                read: false
+            };
+            
+            targetUsers.forEach(user => {
+                notifications.push({
+                    ...notification,
+                    id: generateUUID(),
+                    userId: user.id
+                });
+            });
+            
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            updateNotificationBadge();
+            
+            // Clear form
+            document.getElementById('broadcast-title').value = '';
+            document.getElementById('broadcast-message').value = '';
+            
+            showSuccessMessage(`Рассылка отправлена ${targetUsers.length} пользователям!`);
+        }
+
+        function previewBroadcast() {
+            const type = document.getElementById('broadcast-type').value;
+            const title = document.getElementById('broadcast-title').value.trim();
+            const message = document.getElementById('broadcast-message').value.trim();
+            const minLevel = parseInt(document.getElementById('broadcast-min-level').value) || 1;
+            
+            let targetCount = 0;
+            const now = Date.now();
+            
+            switch (type) {
+                case 'all':
+                    targetCount = users.length;
+                    break;
+                case 'vip':
+                    targetCount = users.filter(u => u.vipUntil && u.vipUntil > now).length;
+                    break;
+                case 'level':
+                    targetCount = users.filter(u => u.level >= minLevel).length;
+                    break;
+                case 'guild':
+                    targetCount = users.filter(u => u.guildId).length;
+                    break;
+            }
+            
+            alert(`Превью рассылки:\n\nЗаголовок: ${title}\nСообщение: ${message}\n\nПолучателей: ${targetCount}`);
+        }
+
+        function updateAdminAnalytics() {
+            const now = Date.now();
+            
+            // Diamonds analytics
+            const totalDiamonds = users.reduce((sum, u) => sum + u.totalDiamonds, 0);
+            const avgDiamonds = users.length > 0 ? totalDiamonds / users.length : 0;
+            const maxDiamonds = Math.max(...users.map(u => u.totalDiamonds));
+            
+            document.getElementById('total-diamonds').textContent = totalDiamonds.toFixed(4);
+            document.getElementById('avg-diamonds').textContent = avgDiamonds.toFixed(4);
+            document.getElementById('max-diamonds').textContent = maxDiamonds.toFixed(4);
+            
+            // Activity analytics
+            const totalTaps = users.reduce((sum, u) => sum + u.totalTaps, 0);
+            const avgTaps = users.length > 0 ? Math.round(totalTaps / users.length) : 0;
+            const activeToday = users.filter(u => u.lastTapTime && now - u.lastTapTime < 24 * 60 * 60 * 1000).length;
+            
+            document.getElementById('total-taps').textContent = totalTaps.toLocaleString();
+            document.getElementById('avg-taps').textContent = avgTaps.toLocaleString();
+            document.getElementById('active-today').textContent = activeToday;
+            
+            // Level distribution
+            const levelDistribution = {};
+            users.forEach(u => {
+                levelDistribution[u.level] = (levelDistribution[u.level] || 0) + 1;
+            });
+            
+            const levelDiv = document.getElementById('level-distribution');
+            levelDiv.innerHTML = '';
+            Object.keys(levelDistribution).sort((a, b) => parseInt(b) - parseInt(a)).forEach(level => {
+                const div = document.createElement('div');
+                div.textContent = `Уровень ${level}: ${levelDistribution[level]} игроков`;
+                levelDiv.appendChild(div);
+            });
+        }
+
+        function updateAdminStats() {
+            const now = Date.now();
+            const vipCount = users.filter(u => u.vipUntil && u.vipUntil > now).length;
+            const onlineCount = users.filter(u => u.lastTapTime && now - u.lastTapTime < 30 * 60 * 1000).length;
+            
+            document.getElementById('admin-users-count').textContent = users.length;
+            document.getElementById('admin-guilds-count').textContent = guilds.length;
+            document.getElementById('admin-online-count').textContent = onlineCount;
+            document.getElementById('admin-vip-count').textContent = vipCount;
         }
 
         function showMainMenu() {
@@ -1539,24 +1928,28 @@
             shopScreen.classList.add('hidden');
             leaderboardScreen.classList.add('hidden');
             adminPanel.classList.add('hidden');
+            // Hide new admin screens
+            document.getElementById('admin-broadcast-screen').classList.add('hidden');
+            document.getElementById('admin-analytics-screen').classList.add('hidden');
+            document.getElementById('admin-settings-screen').classList.add('hidden');
             adminUsersScreen.classList.add('hidden');
             adminGuildsScreen.classList.add('hidden');
             mainMenu.classList.remove('hidden');
             const user = users.find(u => u.id === currentUserId);
             if (user && (user.ffId === '161686768' || user.phone === '+380689640782')) {
                 adminBtn.classList.remove('hidden');
+                updateAdminStats();
             } else {
                 adminBtn.classList.add('hidden');
             }
             updateDiamondBalance();
             updateNotificationBadge();
-            regenerateEnergy();
         }
 
         function updateFarmScreen() {
             const user = users.find(u => u.id === currentUserId);
             diamondCount.textContent = `${user.diamonds.toFixed(4)} 💎`;
-            tapCount.textContent = `Тапы: ${user.taps}/100 | Энергия: ${user.energy}/${user.maxEnergy}`;
+            tapCount.textContent = `Тапы: ${user.taps}/${user.maxTaps} | Уровень: ${user.level}`;
             
             // Check active boosters
             const now = Date.now();
@@ -1581,12 +1974,10 @@
                 tapBtn.classList.remove('pulse-animation');
             }
             
-            if (user.taps >= 100 || user.energy <= 0) {
+            if (user.taps >= user.maxTaps) {
                 tapBtn.disabled = true;
-                if (user.taps >= 100) {
-                    cooldown.classList.remove('hidden');
-                    startCooldown();
-                }
+                cooldown.classList.remove('hidden');
+                startCooldown();
             } else {
                 tapBtn.disabled = false;
                 cooldown.classList.add('hidden');
@@ -1602,7 +1993,7 @@
             document.getElementById('profile-username').textContent = `${user.username}${isVip ? ' 👑' : ''}`;
             document.getElementById('profile-level').textContent = `Уровень: ${user.level}`;
             document.getElementById('profile-experience').textContent = `Опыт: ${user.experience}/${user.level * 100}`;
-            document.getElementById('profile-energy').textContent = `Энергия: ${user.energy}/${user.maxEnergy}`;
+            document.getElementById('profile-energy').textContent = `Макс. тапов: ${user.maxTaps} (${user.taps} использовано)`;
             document.getElementById('profile-diamonds').textContent = `Баланс: ${user.diamonds.toFixed(4)} 💎`;
             document.getElementById('profile-total-stats').textContent = `Всего тапов: ${user.totalTaps} | Всего алмазов: ${user.totalDiamonds.toFixed(4)}`;
             
@@ -1665,19 +2056,44 @@
                 notificationsList.innerHTML = '<p class="text-lg text-center">Нет уведомлений</p>';
             } else {
                 userNotifications.forEach(notification => {
-                    const p = document.createElement('p');
-                    p.className = 'text-sm';
-                    p.textContent = `${notification.message} (${notification.timestamp})`;
-                    notificationsList.appendChild(p);
+                    const div = document.createElement('div');
+                    div.className = `p-3 rounded mb-2 ${notification.read ? 'bg-gray-700' : 'bg-blue-800'}`;
+                    div.innerHTML = `
+                        <p class="text-sm">${notification.message}</p>
+                        <p class="text-xs text-gray-400 mt-1">${notification.timestamp}</p>
+                    `;
+                    div.addEventListener('click', () => {
+                        if (!notification.read) {
+                            notification.read = true;
+                            localStorage.setItem('notifications', JSON.stringify(notifications));
+                            updateNotificationBadge();
+                            div.className = 'p-3 rounded mb-2 bg-gray-700';
+                        }
+                    });
+                    notificationsList.appendChild(div);
                 });
             }
-            updateNotificationBadge();
+            
+            // Автоматически помечаем все уведомления как прочитанные через 3 секунды
+            setTimeout(() => {
+                let updated = false;
+                userNotifications.forEach(notification => {
+                    if (!notification.read) {
+                        notification.read = true;
+                        updated = true;
+                    }
+                });
+                if (updated) {
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+                    updateNotificationBadge();
+                }
+            }, 3000);
         }
 
         function updateNotificationBadge() {
-            const userNotifications = notifications.filter(n => n.userId === currentUserId);
-            if (userNotifications.length > 0) {
-                notificationBadge.textContent = userNotifications.length;
+            const unreadNotifications = notifications.filter(n => n.userId === currentUserId && !n.read);
+            if (unreadNotifications.length > 0) {
+                notificationBadge.textContent = unreadNotifications.length;
                 notificationBadge.classList.remove('hidden');
             } else {
                 notificationBadge.classList.add('hidden');
@@ -1991,20 +2407,7 @@
             });
         }
 
-        function regenerateEnergy() {
-            const user = users.find(u => u.id === currentUserId);
-            if (user && user.energy < user.maxEnergy) {
-                setInterval(() => {
-                    if (user.energy < user.maxEnergy) {
-                        user.energy = Math.min(user.energy + 1, user.maxEnergy);
-                        localStorage.setItem('users', JSON.stringify(users));
-                        if (farmScreen && !farmScreen.classList.contains('hidden')) {
-                            updateFarmScreen();
-                        }
-                    }
-                }, 60000); // 1 energy per minute
-            }
-        }
+
 
         function updateDiamondBalance() {
             const user = users.find(u => u.id === currentUserId);
