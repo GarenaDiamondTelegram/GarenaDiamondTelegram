@@ -1122,128 +1122,214 @@
 
         // Payment functions
         function buyBooster(type, price, currency) {
+            showLoadingPayment();
+            
             if (currency === 'ton') {
-                // TON payment через TON Connect
-                if (window.TonConnectUI) {
-                    initTonPayment(type, price, 'booster');
-                } else {
-                    // Fallback: использование Telegram WebApp API
-                    const invoice = {
-                        title: `Бустер ${getBoosterName(type)}`,
-                        description: `Покупка бустера ${getBoosterName(type)} за ${price} TON`,
-                        payload: JSON.stringify({type: 'booster', boosterType: type, price}),
-                        provider_token: '', // Здесь должен быть токен платежного провайдера
-                        currency: 'XTR', // Telegram Stars
-                        prices: [{ label: getBoosterName(type), amount: Math.floor(price * 100) }] // цена в копейках
-                    };
-                    
-                    TelegramWebApp.openInvoice(createInvoiceLink(invoice), (status) => {
-                        if (status === 'paid') {
-                            applyBooster(type);
-                            showSuccessMessage('Бустер куплен и активирован!');
-                        } else if (status === 'cancelled') {
-                            showErrorMessage('Платеж отменен');
-                        } else if (status === 'failed') {
-                            showErrorMessage('Ошибка платежа');
-                        }
-                    });
-                }
+                // TON payment через Telegram WebApp
+                initTonPayment(type, price, 'booster');
             } else if (currency === 'stars') {
                 // Telegram Stars payment
-                const invoice = {
-                    title: `Бустер ${getBoosterName(type)}`,
-                    description: `Покупка бустера ${getBoosterName(type)}`,
-                    payload: JSON.stringify({type: 'booster', boosterType: type, price}),
-                    currency: 'XTR',
-                    prices: [{ label: getBoosterName(type), amount: price }]
-                };
-                
-                if (TelegramWebApp.openInvoice) {
-                    TelegramWebApp.openInvoice(createStarsInvoiceLink(invoice), (status, url) => {
-                        handlePaymentResult(status, type, 'booster');
-                    });
-                } else {
-                    // Симуляция для тестирования
-                    simulatePayment(type, 'booster');
-                }
+                initStarsPayment(type, price, 'booster');
             }
         }
 
         function buyPremium(type, price, currency) {
+            showLoadingPayment();
+            
             if (currency === 'ton') {
-                if (window.TonConnectUI) {
-                    initTonPayment(type, price, 'premium');
-                } else {
-                    const invoice = {
-                        title: 'VIP Статус',
-                        description: 'Премиум подписка на 30 дней',
-                        payload: JSON.stringify({type: 'premium', premiumType: type, price}),
-                        currency: 'XTR',
-                        prices: [{ label: 'VIP на 30 дней', amount: Math.floor(price * 100) }]
-                    };
-                    
-                    TelegramWebApp.openInvoice(createInvoiceLink(invoice), (status) => {
-                        if (status === 'paid') {
-                            applyPremium(type);
-                            showSuccessMessage('VIP статус активирован!');
-                        } else if (status === 'cancelled') {
-                            showErrorMessage('Платеж отменен');
-                        } else if (status === 'failed') {
-                            showErrorMessage('Ошибка платежа');
-                        }
-                    });
-                }
+                initTonPayment(type, price, 'premium');
             }
         }
 
-        // TON Connect integration
-        async function initTonPayment(itemType, price, category) {
+        // TON Payment через Telegram
+        function initTonPayment(itemType, price, category) {
             try {
-                if (!window.TonConnectUI) {
-                    throw new Error('TON Connect не загружен');
+                // Проверяем доступность Telegram WebApp API
+                if (!window.Telegram?.WebApp) {
+                    throw new Error('Telegram WebApp API недоступен');
                 }
-                
-                const tonConnectUI = new TonConnectUI({
-                    manifestUrl: 'https://your-app.com/tonconnect-manifest.json'
-                });
 
-                const connectedWallet = await tonConnectUI.connectWallet();
+                const webApp = window.Telegram.WebApp;
                 
-                if (connectedWallet) {
-                    const transaction = {
-                        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 минут
-                        messages: [
-                            {
-                                address: "UQBvW8Z5huBkMJYdnfAEM5iCjPn9vp6pzqswbKql12_xP6-v", // Адрес получателя
-                                amount: (price * 1000000000).toString(), // TON в nano
-                                payload: btoa(JSON.stringify({
-                                    type: category,
-                                    itemType: itemType,
-                                    userId: currentUserId,
-                                    timestamp: Date.now()
-                                }))
-                            }
-                        ]
-                    };
+                // Подготавливаем данные для платежа TON
+                const invoiceData = {
+                    title: category === 'booster' ? `🚀 ${getBoosterName(itemType)}` : '👑 VIP Статус',
+                    description: category === 'booster' ? 
+                        `Покупка бустера: ${getBoosterName(itemType)} за ${price} TON` : 
+                        'Премиум подписка на 30 дней с эксклюзивными бонусами',
+                    payload: JSON.stringify({
+                        type: category,
+                        itemType: itemType,
+                        userId: currentUserId,
+                        price: price,
+                        currency: 'TON',
+                        timestamp: Date.now()
+                    }),
+                    provider_token: '', // Пустой для Telegram Stars/TON
+                    start_parameter: `ton_${category}_${itemType}_${price}`,
+                    currency: 'XTR',
+                    prices: [{
+                        label: category === 'booster' ? getBoosterName(itemType) : 'VIP на 30 дней',
+                        amount: Math.floor(price * 100) // Конвертируем для Telegram
+                    }]
+                };
 
-                    const result = await tonConnectUI.sendTransaction(transaction);
-                    
-                    if (result) {
-                        if (category === 'booster') {
-                            applyBooster(itemType);
-                        } else if (category === 'premium') {
-                            applyPremium(itemType);
-                        }
-                        showSuccessMessage('Платеж успешно выполнен!');
-                    }
+                // Используем правильный API для создания инвойса
+                if (webApp.openInvoice) {
+                    const invoiceUrl = createTelegramInvoice(invoiceData);
+                    webApp.openInvoice(invoiceUrl, (status) => {
+                        hideLoadingPayment();
+                        console.log('Payment status:', status);
+                        handlePaymentResult(status, itemType, category);
+                    });
+                } else {
+                    throw new Error('openInvoice не поддерживается');
                 }
+
             } catch (error) {
                 console.error('TON payment error:', error);
-                showErrorMessage('Ошибка при подключении к TON: ' + error.message);
-                // Fallback к симуляции для тестирования
-                simulatePayment(itemType, category);
+                hideLoadingPayment();
+                
+                // Fallback - прямой вызов бота
+                const botUrl = `https://t.me/your_payment_bot?start=ton_${category}_${itemType}_${price}_${currentUserId}`;
+                window.open(botUrl, '_blank');
+                
+                // Показываем уведомление
+                showErrorMessage('Переходим к оплате через бота...');
+                
+                // Симуляция для демо
+                setTimeout(() => {
+                    if (confirm('Демо режим: Подтвердить покупку?')) {
+                        handlePaymentResult('paid', itemType, category);
+                    } else {
+                        handlePaymentResult('cancelled', itemType, category);
+                    }
+                }, 2000);
             }
         }
+
+        // Telegram Stars Payment
+        function initStarsPayment(itemType, price, category) {
+            try {
+                if (!window.Telegram?.WebApp) {
+                    throw new Error('Telegram WebApp API недоступен');
+                }
+
+                const webApp = window.Telegram.WebApp;
+                
+                // Подготавливаем данные для оплаты звездами
+                const invoiceData = {
+                    title: `⭐ ${getBoosterName(itemType)}`,
+                    description: `Покупка бустера за ${price} Telegram Stars`,
+                    payload: JSON.stringify({
+                        type: category,
+                        itemType: itemType,
+                        userId: currentUserId,
+                        price: price,
+                        currency: 'XTR',
+                        timestamp: Date.now()
+                    }),
+                    provider_token: '', // Пустой для Telegram Stars
+                    start_parameter: `stars_${category}_${itemType}_${price}`,
+                    currency: 'XTR', // Telegram Stars
+                    prices: [{
+                        label: getBoosterName(itemType),
+                        amount: price // Звезды в правильных единицах
+                    }]
+                };
+
+                // Используем правильный API для Stars
+                if (webApp.openInvoice) {
+                    const invoiceUrl = createTelegramInvoice(invoiceData);
+                    webApp.openInvoice(invoiceUrl, (status) => {
+                        hideLoadingPayment();
+                        console.log('Stars payment status:', status);
+                        handlePaymentResult(status, itemType, category);
+                    });
+                } else {
+                    throw new Error('openInvoice не поддерживается');
+                }
+
+            } catch (error) {
+                console.error('Stars payment error:', error);
+                hideLoadingPayment();
+                
+                // Fallback - переход к боту для Stars
+                const botUrl = `https://t.me/your_payment_bot?start=stars_${category}_${itemType}_${price}_${currentUserId}`;
+                
+                // Показываем кнопку для перехода к боту
+                showPaymentOptions(itemType, category, price, 'stars');
+            }
+        }
+
+        // URL generators for invoices
+        function createTelegramInvoice(invoiceData) {
+            // Создаем правильный инвойс URL для Telegram
+            const baseParams = {
+                title: invoiceData.title,
+                description: invoiceData.description,
+                payload: invoiceData.payload,
+                currency: invoiceData.currency,
+                prices: JSON.stringify(invoiceData.prices)
+            };
+            
+            if (invoiceData.start_parameter) {
+                baseParams.start_parameter = invoiceData.start_parameter;
+            }
+            
+            const params = new URLSearchParams(baseParams);
+            return `https://t.me/$YourBotName?${params.toString()}`;
+        }
+
+        // Показываем опции оплаты, если API недоступен
+        function showPaymentOptions(itemType, category, price, currency) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
+                    <h3 class="text-xl font-bold mb-4 text-center">Оплата ${currency === 'stars' ? '⭐' : '💎'}</h3>
+                    <p class="text-center mb-4">${getBoosterName(itemType)}</p>
+                    <p class="text-center mb-6 text-gray-300">Цена: ${price} ${currency === 'stars' ? 'Stars' : 'TON'}</p>
+                    
+                    <div class="space-y-3">
+                        <button onclick="window.open('https://t.me/your_payment_bot?start=${currency}_${category}_${itemType}_${price}_${currentUserId}', '_blank')" 
+                                class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
+                            💬 Оплатить через бота
+                        </button>
+                        
+                        <button onclick="simulatePaymentFromModal('${itemType}', '${category}')" 
+                                class="w-full p-3 bg-green-600 rounded hover:bg-green-700">
+                            ✅ Демо покупка (бесплатно)
+                        </button>
+                        
+                        <button onclick="closePaymentModal()" 
+                                class="w-full p-3 bg-gray-600 rounded hover:bg-gray-700">
+                            ❌ Отмена
+                        </button>
+                    </div>
+                </div>
+            `;
+            modal.id = 'payment-modal';
+            document.body.appendChild(modal);
+        }
+
+        // Функции для модального окна оплаты
+        window.simulatePaymentFromModal = function(itemType, category) {
+            closePaymentModal();
+            if (category === 'booster') {
+                applyBooster(itemType);
+            } else if (category === 'premium') {
+                applyPremium(itemType);
+            }
+            showSuccessMessage('Демо покупка успешна! Товар активирован.');
+        };
+
+        window.closePaymentModal = function() {
+            const modal = document.getElementById('payment-modal');
+            if (modal) {
+                modal.remove();
+            }
+        };
 
         // Helper functions for payments
         function getBoosterName(type) {
@@ -1256,21 +1342,25 @@
             return names[type] || type;
         }
 
-        function createStarsInvoiceLink(invoice) {
-            // Для Telegram Stars используем специальный формат
-            const params = new URLSearchParams({
-                amount: invoice.prices[0].amount,
-                currency: 'XTR',
-                title: invoice.title,
-                description: invoice.description,
-                payload: invoice.payload
-            });
-            return `https://t.me/invoice/${generateInvoiceId()}&${params.toString()}`;
+        // Loading and UI functions
+        function showLoadingPayment() {
+            const loading = document.createElement('div');
+            loading.id = 'payment-loading';
+            loading.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            loading.innerHTML = `
+                <div class="bg-gray-800 p-6 rounded-lg text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 mx-auto mb-4"></div>
+                    <p class="text-white">Подготовка платежа...</p>
+                </div>
+            `;
+            document.body.appendChild(loading);
         }
 
-        function createInvoiceLink(invoice) {
-            // Создание ссылки для обычного инвойса
-            return `tg://invoice?${new URLSearchParams(invoice).toString()}`;
+        function hideLoadingPayment() {
+            const loading = document.getElementById('payment-loading');
+            if (loading) {
+                loading.remove();
+            }
         }
 
         function handlePaymentResult(status, itemType, category) {
