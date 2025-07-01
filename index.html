@@ -1123,39 +1123,210 @@
         // Payment functions
         function buyBooster(type, price, currency) {
             if (currency === 'ton') {
-                // TON payment
-                TelegramWebApp.openInvoice(`https://t.me/$TonTestPayBot?start=booster_${type}_${price}`, (status) => {
-                    if (status === 'paid') {
-                        applyBooster(type);
-                        alert('Бустер куплен и активирован!');
-                    } else {
-                        alert('Платеж отменен');
-                    }
-                });
+                // TON payment через TON Connect
+                if (window.TonConnectUI) {
+                    initTonPayment(type, price, 'booster');
+                } else {
+                    // Fallback: использование Telegram WebApp API
+                    const invoice = {
+                        title: `Бустер ${getBoosterName(type)}`,
+                        description: `Покупка бустера ${getBoosterName(type)} за ${price} TON`,
+                        payload: JSON.stringify({type: 'booster', boosterType: type, price}),
+                        provider_token: '', // Здесь должен быть токен платежного провайдера
+                        currency: 'XTR', // Telegram Stars
+                        prices: [{ label: getBoosterName(type), amount: Math.floor(price * 100) }] // цена в копейках
+                    };
+                    
+                    TelegramWebApp.openInvoice(createInvoiceLink(invoice), (status) => {
+                        if (status === 'paid') {
+                            applyBooster(type);
+                            showSuccessMessage('Бустер куплен и активирован!');
+                        } else if (status === 'cancelled') {
+                            showErrorMessage('Платеж отменен');
+                        } else if (status === 'failed') {
+                            showErrorMessage('Ошибка платежа');
+                        }
+                    });
+                }
             } else if (currency === 'stars') {
                 // Telegram Stars payment
-                TelegramWebApp.openInvoice(`https://t.me/invoice/${generateInvoiceId(type, price)}`, (status) => {
-                    if (status === 'paid') {
-                        applyBooster(type);
-                        alert('Бустер куплен и активирован!');
-                    } else {
-                        alert('Платеж отменен');
-                    }
-                });
+                const invoice = {
+                    title: `Бустер ${getBoosterName(type)}`,
+                    description: `Покупка бустера ${getBoosterName(type)}`,
+                    payload: JSON.stringify({type: 'booster', boosterType: type, price}),
+                    currency: 'XTR',
+                    prices: [{ label: getBoosterName(type), amount: price }]
+                };
+                
+                if (TelegramWebApp.openInvoice) {
+                    TelegramWebApp.openInvoice(createStarsInvoiceLink(invoice), (status, url) => {
+                        handlePaymentResult(status, type, 'booster');
+                    });
+                } else {
+                    // Симуляция для тестирования
+                    simulatePayment(type, 'booster');
+                }
             }
         }
 
         function buyPremium(type, price, currency) {
             if (currency === 'ton') {
-                TelegramWebApp.openInvoice(`https://t.me/$TonTestPayBot?start=premium_${type}_${price}`, (status) => {
-                    if (status === 'paid') {
-                        applyPremium(type);
-                        alert('VIP статус активирован!');
-                    } else {
-                        alert('Платеж отменен');
-                    }
-                });
+                if (window.TonConnectUI) {
+                    initTonPayment(type, price, 'premium');
+                } else {
+                    const invoice = {
+                        title: 'VIP Статус',
+                        description: 'Премиум подписка на 30 дней',
+                        payload: JSON.stringify({type: 'premium', premiumType: type, price}),
+                        currency: 'XTR',
+                        prices: [{ label: 'VIP на 30 дней', amount: Math.floor(price * 100) }]
+                    };
+                    
+                    TelegramWebApp.openInvoice(createInvoiceLink(invoice), (status) => {
+                        if (status === 'paid') {
+                            applyPremium(type);
+                            showSuccessMessage('VIP статус активирован!');
+                        } else if (status === 'cancelled') {
+                            showErrorMessage('Платеж отменен');
+                        } else if (status === 'failed') {
+                            showErrorMessage('Ошибка платежа');
+                        }
+                    });
+                }
             }
+        }
+
+        // TON Connect integration
+        async function initTonPayment(itemType, price, category) {
+            try {
+                if (!window.TonConnectUI) {
+                    throw new Error('TON Connect не загружен');
+                }
+                
+                const tonConnectUI = new TonConnectUI({
+                    manifestUrl: 'https://your-app.com/tonconnect-manifest.json'
+                });
+
+                const connectedWallet = await tonConnectUI.connectWallet();
+                
+                if (connectedWallet) {
+                    const transaction = {
+                        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 минут
+                        messages: [
+                            {
+                                address: "UQBvW8Z5huBkMJYdnfAEM5iCjPn9vp6pzqswbKql12_xP6-v", // Адрес получателя
+                                amount: (price * 1000000000).toString(), // TON в nano
+                                payload: btoa(JSON.stringify({
+                                    type: category,
+                                    itemType: itemType,
+                                    userId: currentUserId,
+                                    timestamp: Date.now()
+                                }))
+                            }
+                        ]
+                    };
+
+                    const result = await tonConnectUI.sendTransaction(transaction);
+                    
+                    if (result) {
+                        if (category === 'booster') {
+                            applyBooster(itemType);
+                        } else if (category === 'premium') {
+                            applyPremium(itemType);
+                        }
+                        showSuccessMessage('Платеж успешно выполнен!');
+                    }
+                }
+            } catch (error) {
+                console.error('TON payment error:', error);
+                showErrorMessage('Ошибка при подключении к TON: ' + error.message);
+                // Fallback к симуляции для тестирования
+                simulatePayment(itemType, category);
+            }
+        }
+
+        // Helper functions for payments
+        function getBoosterName(type) {
+            const names = {
+                speed: 'Ускорение тапов x2',
+                diamonds: 'Утроенные алмазы x3',
+                energy: 'Дополнительная энергия +50',
+                mega: 'Мега буст x5'
+            };
+            return names[type] || type;
+        }
+
+        function createStarsInvoiceLink(invoice) {
+            // Для Telegram Stars используем специальный формат
+            const params = new URLSearchParams({
+                amount: invoice.prices[0].amount,
+                currency: 'XTR',
+                title: invoice.title,
+                description: invoice.description,
+                payload: invoice.payload
+            });
+            return `https://t.me/invoice/${generateInvoiceId()}&${params.toString()}`;
+        }
+
+        function createInvoiceLink(invoice) {
+            // Создание ссылки для обычного инвойса
+            return `tg://invoice?${new URLSearchParams(invoice).toString()}`;
+        }
+
+        function handlePaymentResult(status, itemType, category) {
+            switch(status) {
+                case 'paid':
+                    if (category === 'booster') {
+                        applyBooster(itemType);
+                    } else if (category === 'premium') {
+                        applyPremium(itemType);
+                    }
+                    showSuccessMessage('Платеж успешно выполнен!');
+                    break;
+                case 'cancelled':
+                    showErrorMessage('Платеж отменен');
+                    break;
+                case 'failed':
+                    showErrorMessage('Ошибка при выполнении платежа');
+                    break;
+                default:
+                    showErrorMessage('Неизвестный статус платежа');
+            }
+        }
+
+        // Симуляция платежа для тестирования
+        function simulatePayment(itemType, category) {
+            if (confirm(`Симуляция платежа. Активировать ${getBoosterName(itemType)}?`)) {
+                if (category === 'booster') {
+                    applyBooster(itemType);
+                } else if (category === 'premium') {
+                    applyPremium(itemType);
+                }
+                showSuccessMessage('Платеж симулирован успешно!');
+            }
+        }
+
+        function showSuccessMessage(message) {
+            // Создаем красивое уведомление
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function showErrorMessage(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
         }
 
         function applyBooster(type) {
@@ -1201,8 +1372,8 @@
             updateFarmScreen();
         }
 
-        function generateInvoiceId(type, price) {
-            return `${type}_${price}_${Date.now()}`;
+        function generateInvoiceId() {
+            return `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         }
 
         function showMainMenu() {
