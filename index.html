@@ -220,12 +220,12 @@
                         </div>
                         <div class="diamond-panel">
                             <p id="diamond-balance" class="text-lg">0.0000 💎</p>
-                            <p id="user-level" class="text-sm text-gray-300">Уровень 1</p>
                         </div>
                     </div>
                     <button id="farm-btn" class="w-full p-2 bg-green-600 rounded hover:bg-green-700">Фармить 💎</button>
                     <button id="guild-btn" class="w-full p-2 bg-purple-600 rounded hover:bg-purple-700">Гильдия</button>
                     <button id="shop-btn" class="w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700">🛒 Магазин</button>
+                    <button id="leaderboard-btn" class="w-full p-2 bg-blue-500 rounded hover:bg-blue-600">🏆 Рейтинг</button>
 
                     <button id="admin-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700 hidden">Админ-панель</button>
                 </div>
@@ -249,8 +249,6 @@
                     <!-- Player Stats -->
                     <div class="bg-gray-800 p-4 rounded-lg space-y-2">
                         <p id="profile-username" class="text-lg font-bold"></p>
-                        <p id="profile-level" class="text-md"></p>
-                        <p id="profile-experience" class="text-sm"></p>
                         <p id="profile-energy" class="text-sm"></p>
                         <p id="profile-diamonds" class="text-lg"></p>
                         <p id="profile-total-stats" class="text-sm text-gray-400"></p>
@@ -375,6 +373,37 @@
                     <button id="shop-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
                 </div>
 
+                <!-- Leaderboard Screen -->
+                <div id="leaderboard-screen" class="hidden flex-col space-y-4">
+                    <h1 class="text-2xl font-bold text-center">🏆 Рейтинг игроков</h1>
+                    
+                    <!-- Current User Position -->
+                    <div id="user-position" class="bg-gradient-to-r from-blue-600 to-blue-800 p-3 rounded-lg">
+                        <h3 class="text-lg font-bold mb-2 text-center">Ваша позиция</h3>
+                        <div id="current-user-rank" class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg font-bold" id="user-rank-number">#-</span>
+                                <span id="user-rank-name">-</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm" id="user-rank-diamonds">- 💎</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top 20 Players -->
+                    <div class="bg-gray-800 p-3 rounded">
+                        <h3 class="text-lg font-bold mb-2 text-center">👑 Топ 20 игроков</h3>
+                        <div id="leaderboard-list" class="space-y-2"></div>
+                    </div>
+
+                    <div class="text-center text-sm text-gray-400">
+                        Обновление каждые 5 минут
+                    </div>
+
+                    <button id="leaderboard-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
+                </div>
+
 
 
                 <!-- Admin Panel Main Screen -->
@@ -464,7 +493,7 @@
                         </div>
                         
                         <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-bold mb-2">🏆 Уровни</h3>
+                            <h3 class="text-lg font-bold mb-2">💎 Распределение по алмазам</h3>
                             <div id="level-distribution" class="space-y-1 text-sm"></div>
                         </div>
                     </div>
@@ -487,10 +516,6 @@
                                 <div>
                                     <label class="block text-sm mb-1">Алмазов за тап:</label>
                                     <input type="number" id="setting-diamonds-per-tap" value="0.0001" step="0.0001" class="w-full p-2 bg-gray-700 rounded text-white">
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1">Опыта за тап:</label>
-                                    <input type="number" id="setting-exp-per-tap" value="1" min="1" class="w-full p-2 bg-gray-700 rounded text-white">
                                 </div>
                             </div>
                         </div>
@@ -567,6 +592,7 @@
         const guildMembersScreen = document.getElementById('guild-members-screen');
         const guildRequestsScreen = document.getElementById('guild-requests-screen');
         const shopScreen = document.getElementById('shop-screen');
+        const leaderboardScreen = document.getElementById('leaderboard-screen');
         const adminPanel = document.getElementById('admin-panel');
         const adminUsersScreen = document.getElementById('admin-users-screen');
         const adminGuildsScreen = document.getElementById('admin-guilds-screen');
@@ -574,6 +600,7 @@
         const farmBtn = document.getElementById('farm-btn');
         const guildBtn = document.getElementById('guild-btn');
         const shopBtn = document.getElementById('shop-btn');
+        const leaderboardBtn = document.getElementById('leaderboard-btn');
         const profileBtn = document.getElementById('profile-btn');
         const notificationsBtn = document.getElementById('notifications-btn');
         const notificationBadge = document.getElementById('notification-badge');
@@ -656,21 +683,20 @@
             const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
                 baseTaps: 100,
                 diamondsPerTap: 0.0001,
-                expPerTap: 1,
                 cooldownHours: 4
             };
             
             // Update existing users with new fields
             users.forEach(user => {
-                if (!user.hasOwnProperty('level')) user.level = 1;
-                if (!user.hasOwnProperty('experience')) user.experience = 0;
                 if (!user.hasOwnProperty('vipUntil')) user.vipUntil = null;
                 if (!user.hasOwnProperty('totalTaps')) user.totalTaps = 0;
                 if (!user.hasOwnProperty('totalDiamonds')) user.totalDiamonds = user.diamonds || 0;
-                if (!user.hasOwnProperty('maxTaps')) user.maxTaps = gameSettings.baseTaps + (user.level - 1) * 25;
-                // Удаляем старые поля энергии
+                if (!user.hasOwnProperty('maxTaps')) user.maxTaps = gameSettings.baseTaps;
+                // Удаляем старые поля
                 delete user.energy;
                 delete user.maxEnergy;
+                delete user.level;
+                delete user.experience;
             });
             localStorage.setItem('users', JSON.stringify(users));
             
@@ -694,7 +720,6 @@
                 const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
                     baseTaps: 100,
                     diamondsPerTap: 0.0001,
-                    expPerTap: 1,
                     cooldownHours: 4
                 };
                 
@@ -710,8 +735,6 @@
                     taps: 0,
                     lastTapTime: null,
                     guildId: null,
-                    level: 1,
-                    experience: 0,
                     vipUntil: null,
                     totalTaps: 0,
                     totalDiamonds: 0,
@@ -779,6 +802,16 @@
                 mainMenu.classList.remove('enter-animation');
                 shopScreen.classList.remove('hidden');
                 updateShopScreen();
+            }, 500);
+        });
+
+        leaderboardBtn.addEventListener('click', () => {
+            mainMenu.classList.add('enter-animation');
+            setTimeout(() => {
+                mainMenu.classList.add('hidden');
+                mainMenu.classList.remove('enter-animation');
+                leaderboardScreen.classList.remove('hidden');
+                updateLeaderboard();
             }, 500);
         });
 
@@ -869,23 +902,20 @@
         document.getElementById('save-settings-btn').addEventListener('click', () => {
             const baseTaps = parseInt(document.getElementById('setting-base-taps').value);
             const diamondsPerTap = parseFloat(document.getElementById('setting-diamonds-per-tap').value);
-            const expPerTap = parseInt(document.getElementById('setting-exp-per-tap').value);
             const cooldownHours = parseInt(document.getElementById('setting-cooldown-hours').value);
             
-            if (baseTaps >= 50 && diamondsPerTap > 0 && expPerTap >= 1 && cooldownHours >= 1 && cooldownHours <= 24) {
+            if (baseTaps >= 50 && diamondsPerTap > 0 && cooldownHours >= 1 && cooldownHours <= 24) {
                 // Save settings to localStorage
                 const gameSettings = {
                     baseTaps: baseTaps,
                     diamondsPerTap: diamondsPerTap,
-                    expPerTap: expPerTap,
                     cooldownHours: cooldownHours
                 };
                 localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
                 
-                // Update existing users with new base taps if needed
+                // Update existing users with new base taps
                 users.forEach(user => {
-                    const levelBonus = (user.level - 1) * 25;
-                    user.maxTaps = baseTaps + levelBonus;
+                    user.maxTaps = baseTaps;
                 });
                 localStorage.setItem('users', JSON.stringify(users));
                 
@@ -964,6 +994,16 @@
             setTimeout(() => {
                 shopScreen.classList.add('hidden');
                 shopScreen.classList.remove('exit-animation');
+                showMainMenu();
+            }, 500);
+        });
+
+        // Leaderboard Navigation
+        document.getElementById('leaderboard-back-btn').addEventListener('click', () => {
+            leaderboardScreen.classList.add('exit-animation');
+            setTimeout(() => {
+                leaderboardScreen.classList.add('hidden');
+                leaderboardScreen.classList.remove('exit-animation');
                 showMainMenu();
             }, 500);
         });
@@ -1065,7 +1105,6 @@
             const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
                 baseTaps: 100,
                 diamondsPerTap: 0.0001,
-                expPerTap: 1,
                 cooldownHours: 4
             };
             
@@ -1084,7 +1123,6 @@
                 const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
                     baseTaps: 100,
                     diamondsPerTap: 0.0001,
-                    expPerTap: 1,
                     cooldownHours: 4
                 };
                 
@@ -1106,24 +1144,6 @@
                 
                 user.diamonds += diamondGain;
                 user.totalDiamonds += diamondGain;
-                user.experience += gameSettings.expPerTap;
-                
-                // Level up check
-                const newLevel = Math.floor(user.experience / 100) + 1;
-                if (newLevel > user.level) {
-                    const oldMaxTaps = user.maxTaps;
-                    user.level = newLevel;
-                    user.maxTaps = gameSettings.baseTaps + (newLevel - 1) * 25; // Увеличиваем тапы с уровнем
-                    const tapIncrease = user.maxTaps - oldMaxTaps;
-                    
-                    notifications.push({
-                        id: generateUUID(),
-                        userId: currentUserId,
-                        message: `🎉 Поздравляем! Уровень ${newLevel}! Тапов: +${tapIncrease} (${user.maxTaps} всего)`,
-                        timestamp: new Date().toLocaleString(),
-                        read: false
-                    });
-                }
                 
                 localStorage.setItem('users', JSON.stringify(users));
                 localStorage.setItem('notifications', JSON.stringify(notifications));
@@ -1902,17 +1922,26 @@
             document.getElementById('avg-taps').textContent = avgTaps.toLocaleString();
             document.getElementById('active-today').textContent = activeToday;
             
-            // Level distribution
-            const levelDistribution = {};
+            // User distribution by diamond ranges
+            const diamondRanges = {
+                '0-1': 0,
+                '1-10': 0,
+                '10-50': 0,
+                '50+': 0
+            };
+            
             users.forEach(u => {
-                levelDistribution[u.level] = (levelDistribution[u.level] || 0) + 1;
+                if (u.diamonds < 1) diamondRanges['0-1']++;
+                else if (u.diamonds < 10) diamondRanges['1-10']++;
+                else if (u.diamonds < 50) diamondRanges['10-50']++;
+                else diamondRanges['50+']++;
             });
             
             const levelDiv = document.getElementById('level-distribution');
             levelDiv.innerHTML = '';
-            Object.keys(levelDistribution).sort((a, b) => parseInt(b) - parseInt(a)).forEach(level => {
+            Object.keys(diamondRanges).forEach(range => {
                 const div = document.createElement('div');
-                div.textContent = `Уровень ${level}: ${levelDistribution[level]} игроков`;
+                div.textContent = `${range} 💎: ${diamondRanges[range]} игроков`;
                 levelDiv.appendChild(div);
             });
         }
@@ -1938,6 +1967,7 @@
             guildMembersScreen.classList.add('hidden');
             guildRequestsScreen.classList.add('hidden');
             shopScreen.classList.add('hidden');
+            leaderboardScreen.classList.add('hidden');
             adminPanel.classList.add('hidden');
             // Hide new admin screens
             document.getElementById('admin-broadcast-screen').classList.add('hidden');
@@ -1960,7 +1990,7 @@
         function updateFarmScreen() {
             const user = users.find(u => u.id === currentUserId);
             diamondCount.textContent = `${user.diamonds.toFixed(4)} 💎`;
-            tapCount.textContent = `Тапы: ${user.taps}/${user.maxTaps} | Уровень: ${user.level}`;
+            tapCount.textContent = `Тапы: ${user.taps}/${user.maxTaps}`;
             
             // Check active boosters
             const now = Date.now();
@@ -2002,8 +2032,6 @@
             
             // Player Stats
             document.getElementById('profile-username').textContent = `${user.username}${isVip ? ' 👑' : ''}`;
-            document.getElementById('profile-level').textContent = `Уровень: ${user.level}`;
-            document.getElementById('profile-experience').textContent = `Опыт: ${user.experience}/${user.level * 100}`;
             document.getElementById('profile-energy').textContent = `Макс. тапов: ${user.maxTaps} (${user.taps} использовано)`;
             document.getElementById('profile-diamonds').textContent = `Баланс: ${user.diamonds.toFixed(4)} 💎`;
             document.getElementById('profile-total-stats').textContent = `Всего тапов: ${user.totalTaps} | Всего алмазов: ${user.totalDiamonds.toFixed(4)}`;
@@ -2352,12 +2380,7 @@
             const now = Date.now();
             const isVip = user.vipUntil && user.vipUntil > now;
             
-            diamondBalance.textContent = `${user.diamonds.toFixed(4)} 💎`;
-            document.getElementById('user-level').textContent = `Уровень ${user.level}${isVip ? ' 👑' : ''}`;
-            
-            if (isVip) {
-                document.getElementById('user-level').classList.add('vip-user');
-            }
+            diamondBalance.textContent = `${user.diamonds.toFixed(4)} 💎${isVip ? ' 👑' : ''}`;
         }
 
         function startCooldown() {
@@ -2367,7 +2390,6 @@
             const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
                 baseTaps: 100,
                 diamondsPerTap: 0.0001,
-                expPerTap: 1,
                 cooldownHours: 4
             };
             
@@ -2393,14 +2415,82 @@
             const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
                 baseTaps: 100,
                 diamondsPerTap: 0.0001,
-                expPerTap: 1,
                 cooldownHours: 4
             };
             
             document.getElementById('setting-base-taps').value = gameSettings.baseTaps;
             document.getElementById('setting-diamonds-per-tap').value = gameSettings.diamondsPerTap;
-            document.getElementById('setting-exp-per-tap').value = gameSettings.expPerTap;
             document.getElementById('setting-cooldown-hours').value = gameSettings.cooldownHours;
+        }
+
+        // Generate random leaderboard players
+        function generateRandomPlayers() {
+            const firstNames = ['Александр', 'Дмитрий', 'Максим', 'Сергей', 'Андрей', 'Алексей', 'Артём', 'Илья', 'Кирилл', 'Михаил', 'Никита', 'Матвей', 'Роман', 'Егор', 'Арсений', 'Иван', 'Денис', 'Евгений', 'Даниил', 'Тимофей'];
+            const lastNames = ['Смирнов', 'Иванов', 'Кузнецов', 'Попов', 'Соколов', 'Лебедев', 'Козлов', 'Новиков', 'Морозов', 'Петров', 'Волков', 'Соловьёв', 'Васильев', 'Зайцев', 'Павлов', 'Семёнов', 'Голубев', 'Виноградов', 'Богданов', 'Воробьёв'];
+            
+            const players = [];
+            
+            for (let i = 0; i < 20; i++) {
+                const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const diamonds = Math.random() * 120 + 0.0001; // От 0.0001 до 120 алмазов
+                
+                players.push({
+                    username: `${firstName} ${lastName}`,
+                    diamonds: diamonds
+                });
+            }
+            
+            return players.sort((a, b) => b.diamonds - a.diamonds);
+        }
+
+        // Update leaderboard
+        function updateLeaderboard() {
+            let randomPlayers = JSON.parse(localStorage.getItem('randomPlayers'));
+            const lastUpdate = localStorage.getItem('lastLeaderboardUpdate');
+            const now = Date.now();
+            
+            // Обновляем рейтинг каждые 5 минут (300000 мс)
+            if (!randomPlayers || !lastUpdate || now - parseInt(lastUpdate) > 300000) {
+                randomPlayers = generateRandomPlayers();
+                localStorage.setItem('randomPlayers', JSON.stringify(randomPlayers));
+                localStorage.setItem('lastLeaderboardUpdate', now.toString());
+            }
+            
+            const currentUser = users.find(u => u.id === currentUserId);
+            const leaderboardList = document.getElementById('leaderboard-list');
+            leaderboardList.innerHTML = '';
+            
+            // Показываем топ 20
+            randomPlayers.forEach((player, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-1';
+                
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-lg">${medal}</span>
+                        <span>${player.username}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm">${player.diamonds.toFixed(4)} 💎</div>
+                    </div>
+                `;
+                leaderboardList.appendChild(div);
+            });
+            
+            // Определяем место текущего пользователя
+            const allPlayers = [...randomPlayers, { username: currentUser.username, diamonds: currentUser.diamonds }]
+                .sort((a, b) => b.diamonds - a.diamonds);
+            
+            const userRank = allPlayers.findIndex(p => p.username === currentUser.username) + 1;
+            
+            // Обновляем позицию пользователя
+            document.getElementById('user-rank-number').textContent = `#${userRank}`;
+            document.getElementById('user-rank-name').textContent = currentUser.username;
+            document.getElementById('user-rank-diamonds').textContent = `${currentUser.diamonds.toFixed(4)} 💎`;
         }
 
         function generateUUID() {
