@@ -226,7 +226,7 @@
                     <button id="farm-btn" class="w-full p-2 bg-green-600 rounded hover:bg-green-700">Фармить 💎</button>
                     <button id="guild-btn" class="w-full p-2 bg-purple-600 rounded hover:bg-purple-700">Гильдия</button>
                     <button id="shop-btn" class="w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700">🛒 Магазин</button>
-                    <button id="leaderboard-btn" class="w-full p-2 bg-blue-500 rounded hover:bg-blue-600">🏆 Рейтинг</button>
+
                     <button id="admin-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700 hidden">Админ-панель</button>
                 </div>
 
@@ -375,34 +375,7 @@
                     <button id="shop-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
                 </div>
 
-                <!-- Leaderboard Screen -->
-                <div id="leaderboard-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">🏆 Рейтинг</h1>
-                    
-                    <!-- Tabs -->
-                    <div class="flex space-x-2">
-                        <button id="players-tab" class="flex-1 p-2 bg-blue-600 rounded active-tab">Игроки</button>
-                        <button id="guilds-tab" class="flex-1 p-2 bg-gray-600 rounded">Гильдии</button>
-                    </div>
 
-                    <!-- Players Leaderboard -->
-                    <div id="players-leaderboard" class="space-y-2">
-                        <div class="bg-gray-800 p-3 rounded">
-                            <h3 class="text-lg font-bold mb-2 text-center">👑 Топ игроков</h3>
-                            <div id="players-ranking" class="space-y-2"></div>
-                        </div>
-                    </div>
-
-                    <!-- Guilds Leaderboard -->
-                    <div id="guilds-leaderboard" class="hidden space-y-2">
-                        <div class="bg-gray-800 p-3 rounded">
-                            <h3 class="text-lg font-bold mb-2 text-center">🏰 Топ гильдий</h3>
-                            <div id="guilds-ranking" class="space-y-2"></div>
-                        </div>
-                    </div>
-
-                    <button id="leaderboard-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
 
                 <!-- Admin Panel Main Screen -->
                 <div id="admin-panel" class="hidden flex-col space-y-4">
@@ -594,7 +567,6 @@
         const guildMembersScreen = document.getElementById('guild-members-screen');
         const guildRequestsScreen = document.getElementById('guild-requests-screen');
         const shopScreen = document.getElementById('shop-screen');
-        const leaderboardScreen = document.getElementById('leaderboard-screen');
         const adminPanel = document.getElementById('admin-panel');
         const adminUsersScreen = document.getElementById('admin-users-screen');
         const adminGuildsScreen = document.getElementById('admin-guilds-screen');
@@ -602,7 +574,6 @@
         const farmBtn = document.getElementById('farm-btn');
         const guildBtn = document.getElementById('guild-btn');
         const shopBtn = document.getElementById('shop-btn');
-        const leaderboardBtn = document.getElementById('leaderboard-btn');
         const profileBtn = document.getElementById('profile-btn');
         const notificationsBtn = document.getElementById('notifications-btn');
         const notificationBadge = document.getElementById('notification-badge');
@@ -681,6 +652,14 @@
 
         // Always show loading screen on page load
         setTimeout(() => {
+            // Get admin settings for user updates
+            const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
+                baseTaps: 100,
+                diamondsPerTap: 0.0001,
+                expPerTap: 1,
+                cooldownHours: 4
+            };
+            
             // Update existing users with new fields
             users.forEach(user => {
                 if (!user.hasOwnProperty('level')) user.level = 1;
@@ -688,7 +667,7 @@
                 if (!user.hasOwnProperty('vipUntil')) user.vipUntil = null;
                 if (!user.hasOwnProperty('totalTaps')) user.totalTaps = 0;
                 if (!user.hasOwnProperty('totalDiamonds')) user.totalDiamonds = user.diamonds || 0;
-                if (!user.hasOwnProperty('maxTaps')) user.maxTaps = 100 + (user.level - 1) * 25;
+                if (!user.hasOwnProperty('maxTaps')) user.maxTaps = gameSettings.baseTaps + (user.level - 1) * 25;
                 // Удаляем старые поля энергии
                 delete user.energy;
                 delete user.maxEnergy;
@@ -711,6 +690,14 @@
             const ffId = document.getElementById('ff-id').value;
             const password = document.getElementById('password').value;
             if (phone && email && ffId && password) {
+                // Get base taps from settings
+                const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
+                    baseTaps: 100,
+                    diamondsPerTap: 0.0001,
+                    expPerTap: 1,
+                    cooldownHours: 4
+                };
+                
                 const user = {
                     id: generateUUID(),
                     telegramId: telegramUser ? telegramUser.id : null,
@@ -728,7 +715,7 @@
                     vipUntil: null,
                     totalTaps: 0,
                     totalDiamonds: 0,
-                    maxTaps: 100
+                    maxTaps: gameSettings.baseTaps
                 };
                 users.push(user);
                 currentUserId = user.id;
@@ -795,15 +782,7 @@
             }, 500);
         });
 
-        leaderboardBtn.addEventListener('click', () => {
-            mainMenu.classList.add('enter-animation');
-            setTimeout(() => {
-                mainMenu.classList.add('hidden');
-                mainMenu.classList.remove('enter-animation');
-                leaderboardScreen.classList.remove('hidden');
-                updateLeaderboard();
-            }, 500);
-        });
+
 
         adminBtn.addEventListener('click', () => {
             mainMenu.classList.add('enter-animation');
@@ -849,6 +828,7 @@
         document.getElementById('admin-settings-btn').addEventListener('click', () => {
             adminPanel.classList.add('hidden');
             document.getElementById('admin-settings-screen').classList.remove('hidden');
+            loadAdminSettings();
         });
 
         // Broadcast functionality
@@ -883,6 +863,43 @@
         document.getElementById('settings-back-btn').addEventListener('click', () => {
             document.getElementById('admin-settings-screen').classList.add('hidden');
             adminPanel.classList.remove('hidden');
+        });
+
+        // Admin Settings Save
+        document.getElementById('save-settings-btn').addEventListener('click', () => {
+            const baseTaps = parseInt(document.getElementById('setting-base-taps').value);
+            const diamondsPerTap = parseFloat(document.getElementById('setting-diamonds-per-tap').value);
+            const expPerTap = parseInt(document.getElementById('setting-exp-per-tap').value);
+            const cooldownHours = parseInt(document.getElementById('setting-cooldown-hours').value);
+            
+            if (baseTaps >= 50 && diamondsPerTap > 0 && expPerTap >= 1 && cooldownHours >= 1 && cooldownHours <= 24) {
+                // Save settings to localStorage
+                const gameSettings = {
+                    baseTaps: baseTaps,
+                    diamondsPerTap: diamondsPerTap,
+                    expPerTap: expPerTap,
+                    cooldownHours: cooldownHours
+                };
+                localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
+                
+                // Update existing users with new base taps if needed
+                users.forEach(user => {
+                    const levelBonus = (user.level - 1) * 25;
+                    user.maxTaps = baseTaps + levelBonus;
+                });
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                alert('Настройки сохранены! Новые параметры будут применены для всех пользователей.');
+                
+                // Update current user display if needed
+                const currentUser = users.find(u => u.id === currentUserId);
+                if (currentUser) {
+                    updateFarmScreen();
+                    updateDiamondBalance();
+                }
+            } else {
+                alert('Проверьте корректность введенных данных!');
+            }
         });
 
         backBtn.addEventListener('click', () => {
@@ -951,30 +968,9 @@
             }, 500);
         });
 
-        // Leaderboard Navigation
-        document.getElementById('leaderboard-back-btn').addEventListener('click', () => {
-            leaderboardScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                leaderboardScreen.classList.add('hidden');
-                leaderboardScreen.classList.remove('exit-animation');
-                showMainMenu();
-            }, 500);
-        });
 
-        // Leaderboard Tabs
-        document.getElementById('players-tab').addEventListener('click', () => {
-            document.getElementById('players-tab').classList.add('active-tab');
-            document.getElementById('guilds-tab').classList.remove('active-tab');
-            document.getElementById('players-leaderboard').classList.remove('hidden');
-            document.getElementById('guilds-leaderboard').classList.add('hidden');
-        });
 
-        document.getElementById('guilds-tab').addEventListener('click', () => {
-            document.getElementById('guilds-tab').classList.add('active-tab');
-            document.getElementById('players-tab').classList.remove('active-tab');
-            document.getElementById('guilds-leaderboard').classList.remove('hidden');
-            document.getElementById('players-leaderboard').classList.add('hidden');
-        });
+
 
         adminBackBtn.addEventListener('click', () => {
             adminPanel.classList.add('exit-animation');
@@ -1065,8 +1061,16 @@
             const user = users.find(u => u.id === currentUserId);
             const now = Date.now();
 
+            // Get cooldown hours from settings
+            const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
+                baseTaps: 100,
+                diamondsPerTap: 0.0001,
+                expPerTap: 1,
+                cooldownHours: 4
+            };
+            
             // Reset taps if cooldown period passed
-            if (!user.lastTapTime || now - user.lastTapTime >= 4 * 60 * 60 * 1000) {
+            if (!user.lastTapTime || now - user.lastTapTime >= gameSettings.cooldownHours * 60 * 60 * 1000) {
                 user.taps = 0;
                 user.lastTapTime = now;
             }
@@ -1076,7 +1080,15 @@
                 user.taps++;
                 user.totalTaps++;
                 
-                let diamondGain = 0.0001;
+                // Get settings from localStorage or use defaults
+                const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
+                    baseTaps: 100,
+                    diamondsPerTap: 0.0001,
+                    expPerTap: 1,
+                    cooldownHours: 4
+                };
+                
+                let diamondGain = gameSettings.diamondsPerTap;
                 
                 // Apply boosters
                 const userBoosters = activeBoosters[currentUserId] || {};
@@ -1094,14 +1106,14 @@
                 
                 user.diamonds += diamondGain;
                 user.totalDiamonds += diamondGain;
-                user.experience += 1;
+                user.experience += gameSettings.expPerTap;
                 
                 // Level up check
                 const newLevel = Math.floor(user.experience / 100) + 1;
                 if (newLevel > user.level) {
                     const oldMaxTaps = user.maxTaps;
                     user.level = newLevel;
-                    user.maxTaps = 100 + (newLevel - 1) * 25; // Увеличиваем тапы с уровнем
+                    user.maxTaps = gameSettings.baseTaps + (newLevel - 1) * 25; // Увеличиваем тапы с уровнем
                     const tapIncrease = user.maxTaps - oldMaxTaps;
                     
                     notifications.push({
@@ -1926,7 +1938,6 @@
             guildMembersScreen.classList.add('hidden');
             guildRequestsScreen.classList.add('hidden');
             shopScreen.classList.add('hidden');
-            leaderboardScreen.classList.add('hidden');
             adminPanel.classList.add('hidden');
             // Hide new admin screens
             document.getElementById('admin-broadcast-screen').classList.add('hidden');
@@ -2332,80 +2343,7 @@
             document.getElementById('shop-diamond-balance').textContent = `${user.diamonds.toFixed(4)} 💎`;
         }
 
-        function updateLeaderboard() {
-            updatePlayersRanking();
-            updateGuildsRanking();
-        }
 
-        function updatePlayersRanking() {
-            const sortedUsers = [...users].sort((a, b) => b.totalDiamonds - a.totalDiamonds);
-            const playersRankingDiv = document.getElementById('players-ranking');
-            playersRankingDiv.innerHTML = '';
-            
-            sortedUsers.slice(0, 10).forEach((user, index) => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-1';
-                
-                const rank = index + 1;
-                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-                const isVip = user.vipUntil && user.vipUntil > Date.now();
-                
-                div.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-lg">${medal}</span>
-                        <span class="${isVip ? 'vip-user' : ''}">${user.username}${isVip ? ' 👑' : ''}</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm">${user.totalDiamonds.toFixed(4)} 💎</div>
-                        <div class="text-xs text-gray-400">Уровень ${user.level}</div>
-                    </div>
-                `;
-                playersRankingDiv.appendChild(div);
-            });
-        }
-
-        function updateGuildsRanking() {
-            const guildStats = guilds.map(guild => {
-                const guildUsers = users.filter(u => u.guildId === guild.id);
-                const totalDiamonds = guildUsers.reduce((sum, u) => sum + u.totalDiamonds, 0);
-                const avgLevel = guildUsers.reduce((sum, u) => sum + u.level, 0) / guildUsers.length || 0;
-                const leader = users.find(u => u.id === guild.leaderId);
-                
-                return {
-                    ...guild,
-                    totalDiamonds,
-                    avgLevel: Math.round(avgLevel),
-                    memberCount: guildUsers.length,
-                    leaderName: leader ? leader.username : 'Неизвестно'
-                };
-            }).sort((a, b) => b.totalDiamonds - a.totalDiamonds);
-
-            const guildsRankingDiv = document.getElementById('guilds-ranking');
-            guildsRankingDiv.innerHTML = '';
-
-            guildStats.slice(0, 10).forEach((guild, index) => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-1';
-                
-                const rank = index + 1;
-                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-                
-                div.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-lg">${medal}</span>
-                        <div>
-                            <div class="font-bold">${guild.name}</div>
-                            <div class="text-xs text-gray-400">Лидер: ${guild.leaderName}</div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm">${guild.totalDiamonds.toFixed(4)} 💎</div>
-                        <div class="text-xs text-gray-400">${guild.memberCount} участников</div>
-                    </div>
-                `;
-                guildsRankingDiv.appendChild(div);
-            });
-        }
 
 
 
@@ -2424,7 +2362,16 @@
 
         function startCooldown() {
             const user = users.find(u => u.id === currentUserId);
-            const endTime = user.lastTapTime + 4 * 60 * 60 * 1000;
+            
+            // Get cooldown hours from settings
+            const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
+                baseTaps: 100,
+                diamondsPerTap: 0.0001,
+                expPerTap: 1,
+                cooldownHours: 4
+            };
+            
+            const endTime = user.lastTapTime + gameSettings.cooldownHours * 60 * 60 * 1000;
             const interval = setInterval(() => {
                 const now = Date.now();
                 const timeLeft = endTime - now;
@@ -2440,6 +2387,20 @@
                     cooldown.textContent = `Осталось: ${hours}ч ${minutes}м ${seconds}с`;
                 }
             }, 1000);
+        }
+
+        function loadAdminSettings() {
+            const gameSettings = JSON.parse(localStorage.getItem('gameSettings')) || {
+                baseTaps: 100,
+                diamondsPerTap: 0.0001,
+                expPerTap: 1,
+                cooldownHours: 4
+            };
+            
+            document.getElementById('setting-base-taps').value = gameSettings.baseTaps;
+            document.getElementById('setting-diamonds-per-tap').value = gameSettings.diamondsPerTap;
+            document.getElementById('setting-exp-per-tap').value = gameSettings.expPerTap;
+            document.getElementById('setting-cooldown-hours').value = gameSettings.cooldownHours;
         }
 
         function generateUUID() {
