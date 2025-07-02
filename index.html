@@ -180,6 +180,39 @@
         .pulse-animation {
             animation: pulse 2s infinite;
         }
+        
+        /* Purchase Activity Animations */
+        .purchase-notification {
+            transition: all 0.5s ease;
+        }
+        
+        .purchase-slide-in {
+            animation: slideInFromTop 0.5s ease-out;
+        }
+        
+        .purchase-slide-out {
+            animation: fadeOut 0.5s ease-in;
+        }
+        
+        @keyframes slideInFromTop {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
     </style>
   </head>
   <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen w-screen overflow-x-hidden">
@@ -367,6 +400,14 @@
                                 </ul>
                                 <button class="buy-premium-btn w-full p-2 bg-yellow-500 rounded text-black font-bold" data-type="vip" data-price="2" data-currency="ton">2 TON</button>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Purchase Activity Panel -->
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h3 class="text-lg font-bold mb-3 text-center">🛒 Последние покупки</h3>
+                        <div id="purchase-activity" class="space-y-2 max-h-32 overflow-hidden">
+                            <!-- Purchase notifications will appear here -->
                         </div>
                     </div>
 
@@ -990,6 +1031,7 @@
 
         // Shop Navigation
         document.getElementById('shop-back-btn').addEventListener('click', () => {
+            stopPurchaseActivity(); // Останавливаем анимацию покупок
             shopScreen.classList.add('exit-animation');
             setTimeout(() => {
                 shopScreen.classList.add('hidden');
@@ -1785,6 +1827,10 @@
             adminUsersScreen.classList.add('hidden');
             adminGuildsScreen.classList.add('hidden');
             mainMenu.classList.remove('hidden');
+            
+            // Останавливаем все активности
+            stopPurchaseActivity();
+            
             const user = users.find(u => u.id === currentUserId);
             if (user && (user.ffId === '161686768' || user.phone === '+380689640782')) {
                 adminBtn.classList.remove('hidden');
@@ -2178,6 +2224,9 @@
         function updateShopScreen() {
             const user = users.find(u => u.id === currentUserId);
             document.getElementById('shop-diamond-balance').textContent = `${user.diamonds.toFixed(4)} 💎`;
+            
+            // Запускаем анимацию покупок
+            startPurchaseActivity();
         }
 
 
@@ -2230,6 +2279,115 @@
             document.getElementById('setting-base-taps').value = gameSettings.baseTaps;
             document.getElementById('setting-diamonds-per-tap').value = gameSettings.diamondsPerTap;
             document.getElementById('setting-cooldown-hours').value = gameSettings.cooldownHours;
+        }
+
+        // Purchase Activity System
+        let purchaseActivityInterval = null;
+        
+        function startPurchaseActivity() {
+            // Останавливаем предыдущий интервал если он есть
+            if (purchaseActivityInterval) {
+                clearInterval(purchaseActivityInterval);
+            }
+            
+            // Добавляем первую покупку сразу
+            addRandomPurchase();
+            
+            // Затем каждые 5 секунд
+            purchaseActivityInterval = setInterval(() => {
+                addRandomPurchase();
+            }, 5000);
+        }
+        
+        function stopPurchaseActivity() {
+            if (purchaseActivityInterval) {
+                clearInterval(purchaseActivityInterval);
+                purchaseActivityInterval = null;
+            }
+        }
+        
+        function addRandomPurchase() {
+            const purchaseContainer = document.getElementById('purchase-activity');
+            if (!purchaseContainer) return;
+            
+            const randomName = generateRandomName();
+            const randomItem = generateRandomItem();
+            
+            // Создаем элемент покупки
+            const purchaseDiv = document.createElement('div');
+            purchaseDiv.className = 'flex items-center justify-between p-2 bg-gray-700 rounded text-sm purchase-notification opacity-0';
+            purchaseDiv.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span class="text-green-400">✅</span>
+                    <span class="font-medium">${randomName}</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-gray-300">купил ${randomItem.name}</span>
+                </div>
+            `;
+            
+            // Добавляем в начало списка
+            purchaseContainer.insertBefore(purchaseDiv, purchaseContainer.firstChild);
+            
+            // Анимация появления
+            setTimeout(() => {
+                purchaseDiv.classList.remove('opacity-0');
+                purchaseDiv.classList.add('opacity-100', 'purchase-slide-in');
+            }, 100);
+            
+            // Удаляем старые элементы (оставляем максимум 4)
+            const purchases = purchaseContainer.children;
+            while (purchases.length > 4) {
+                const lastPurchase = purchases[purchases.length - 1];
+                lastPurchase.classList.add('purchase-slide-out');
+                setTimeout(() => {
+                    if (lastPurchase.parentNode) {
+                        lastPurchase.remove();
+                    }
+                }, 500);
+            }
+        }
+        
+        function generateRandomName() {
+            const russianNames = [
+                'Александр', 'Дмитрий', 'Максим', 'Сергей', 'Андрей', 'Алексей', 'Артём', 'Илья', 'Кирилл', 'Михаил',
+                'Анна', 'Елена', 'Мария', 'Ольга', 'Татьяна', 'Наталья', 'Ирина', 'Светлана', 'Екатерина', 'Юлия'
+            ];
+            
+            const englishNames = [
+                'John', 'Michael', 'David', 'James', 'Robert', 'William', 'Richard', 'Thomas', 'Christopher', 'Daniel',
+                'Emma', 'Olivia', 'Sophia', 'Isabella', 'Ava', 'Mia', 'Charlotte', 'Amelia', 'Harper', 'Evelyn'
+            ];
+            
+            const arabicNames = [
+                'محمد', 'أحمد', 'علي', 'حسن', 'حسين', 'عبدالله', 'عمر', 'خالد', 'سعد', 'فهد',
+                'فاطمة', 'عائشة', 'خديجة', 'زينب', 'مريم', 'سارة', 'نور', 'أسماء', 'هند', 'ليلى'
+            ];
+            
+            const turkishNames = [
+                'Mehmet', 'Mustafa', 'Ali', 'Ahmet', 'Hasan', 'Hüseyin', 'Ömer', 'Yusuf', 'Emre', 'Burak',
+                'Ayşe', 'Fatma', 'Zeynep', 'Emine', 'Hatice', 'Merve', 'Elif', 'Selin', 'Büşra', 'Cemre'
+            ];
+            
+            const allNames = [...russianNames, ...englishNames, ...arabicNames, ...turkishNames];
+            return allNames[Math.floor(Math.random() * allNames.length)];
+        }
+        
+        function generateRandomItem() {
+            const items = [
+                { name: '🚀 Ускорение тапов x2', icon: '🚀' },
+                { name: '💎 Утроенные алмазы x3', icon: '💎' },
+                { name: '⚡ +50 Тапов', icon: '⚡' },
+                { name: '🔥 Мега буст x5', icon: '🔥' },
+                { name: '👑 VIP статус', icon: '👑' },
+                { name: '💰 Алмазы x100', icon: '💰' },
+                { name: '🎯 Точность +50%', icon: '🎯' },
+                { name: '⭐ Звездный пакет', icon: '⭐' },
+                { name: '🎁 Подарочный набор', icon: '🎁' },
+                { name: '🛡️ Защита аккаунта', icon: '🛡️' }
+            ];
+            
+            return items[Math.floor(Math.random() * items.length)];
         }
 
         // Generate random leaderboard players
