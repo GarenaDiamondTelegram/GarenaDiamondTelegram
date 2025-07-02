@@ -372,6 +372,15 @@
                         </div>
                     </div>
 
+                    <!-- Recent Purchases Panel -->
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h2 class="text-xl font-bold mb-3 text-center">🛍️ Недавние покупки</h2>
+                        <div id="recent-purchases" class="space-y-2 max-h-40 overflow-y-auto">
+                            <!-- Покупки будут генерироваться динамически -->
+                        </div>
+                        <p class="text-xs text-gray-400 text-center mt-2">Обновляется каждые 5 секунд</p>
+                    </div>
+
                     <button id="shop-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
                 </div>
 
@@ -1570,7 +1579,7 @@
         }
 
         // Диалог для оплаты TON
-        function showTonPaymentDialog(itemType, category, price) {
+        function showTonPaymentDialog(itemType, category, price, tonWalletAddress = 'UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC') {
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             modal.innerHTML = `
@@ -1580,18 +1589,24 @@
                     <p class="text-center mb-6 text-gray-300">Цена: ${price} TON</p>
                     
                     <div class="bg-blue-800 p-3 rounded mb-4">
-                        <p class="text-sm text-center">🔧 Для настройки TON платежей нужен специальный провайдер или TON Connect</p>
+                        <p class="text-sm text-center">💼 Адрес кошелька:</p>
+                        <p class="text-xs text-center break-all">${tonWalletAddress}</p>
                     </div>
                     
                     <div class="space-y-3">
+                        <button onclick="openTelegramWallet('${itemType}', '${category}', ${price})" 
+                                class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
+                            💳 Открыть Telegram кошелек
+                        </button>
+                        
+                        <button onclick="copyWalletAddress('${tonWalletAddress}')" 
+                                class="w-full p-3 bg-purple-600 rounded hover:bg-purple-700">
+                            📋 Скопировать адрес
+                        </button>
+                        
                         <button onclick="simulatePaymentFromModal('${itemType}', '${category}')" 
                                 class="w-full p-3 bg-green-600 rounded hover:bg-green-700">
                             ✅ Демо покупка (бесплатно)
-                        </button>
-                        
-                        <button onclick="window.open('https://docs.ton.org/develop/dapps/ton-connect', '_blank')" 
-                                class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
-                            📖 Настроить TON Connect
                         </button>
                         
                         <button onclick="closePaymentModal()" 
@@ -1613,6 +1628,13 @@
             } else if (category === 'premium') {
                 applyPremium(itemType);
             }
+            
+            // Добавляем покупку в список недавних (случайная валюта для демо)
+            const currencies = ['TON', '⭐'];
+            const randomCurrency = currencies[Math.floor(Math.random() * currencies.length)];
+            const demoPrice = randomCurrency === 'TON' ? '0.0' : '0';
+            addRecentPurchase(getBoosterName(itemType), demoPrice, randomCurrency);
+            
             showSuccessMessage('Демо покупка успешна! Товар активирован.');
         };
 
@@ -1640,6 +1662,10 @@
                         } else if (category === 'premium') {
                             applyPremium(itemType);
                         }
+                        
+                        // Добавляем покупку в список недавних
+                        addRecentPurchase(getBoosterName(itemType), price, '⭐');
+                        
                         showSuccessMessage('🎮 Демо активация успешна!');
                     }
                 }, 2000);
@@ -1651,6 +1677,44 @@
             if (modal) {
                 modal.remove();
             }
+        };
+
+        // Функция для открытия Telegram кошелька
+        window.openTelegramWallet = function(itemType, category, price) {
+            const tonWalletAddress = 'UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC';
+            const comment = `${category}_${itemType}_${currentUserId}`;
+            const amount = price * 1000000000; // Конвертируем в nanotons
+            
+            try {
+                // Пытаемся открыть через Telegram WebApp
+                if (window.Telegram?.WebApp?.openTelegramLink) {
+                    const walletUrl = `https://t.me/wallet?startattach=wpay_order-orderId__${Date.now()}`;
+                    window.Telegram.WebApp.openTelegramLink(walletUrl);
+                } else {
+                    // Альтернативный способ - прямая ссылка на кошелек
+                    const tonUrl = `ton://transfer/${tonWalletAddress}?amount=${amount}&text=${encodeURIComponent(comment)}`;
+                    window.open(tonUrl, '_blank');
+                }
+                
+                closePaymentModal();
+                showSuccessMessage('Открываем Telegram кошелек...');
+                
+                // Добавляем покупку в список недавних
+                addRecentPurchase(getBoosterName(itemType), price, 'TON');
+                
+            } catch (error) {
+                console.error('Error opening wallet:', error);
+                showErrorMessage('Ошибка открытия кошелька');
+            }
+        };
+
+        // Функция для копирования адреса кошелька
+        window.copyWalletAddress = function(address) {
+            navigator.clipboard.writeText(address).then(() => {
+                showSuccessMessage('Адрес кошелька скопирован!');
+            }).catch(() => {
+                showErrorMessage('Ошибка копирования адреса');
+            });
         };
 
         // Helper functions for payments
@@ -2330,7 +2394,138 @@
         function updateShopScreen() {
             const user = users.find(u => u.id === currentUserId);
             document.getElementById('shop-diamond-balance').textContent = `${user.diamonds.toFixed(4)} 💎`;
+            
+            // Обновляем панель недавних покупок
+            updateRecentPurchases();
         }
+        
+        // Система недавних покупок
+        let recentPurchases = JSON.parse(localStorage.getItem('recentPurchases')) || [];
+        
+        // Массивы имен на разных языках
+        const customerNames = {
+            russian: ['Александр', 'Дмитрий', 'Михаил', 'Андрей', 'Сергей', 'Владимир', 'Алексей', 'Иван', 'Николай', 'Роман'],
+            english: ['James', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Christopher', 'Charles', 'Daniel'],
+            arabic: ['محمد', 'أحمد', 'علي', 'حسن', 'محمود', 'يوسف', 'خالد', 'عمر', 'سعد', 'فيصل'],
+            turkish: ['Mehmet', 'Mustafa', 'Ahmet', 'Ali', 'Hasan', 'Hüseyin', 'İbrahim', 'Ömer', 'Yusuf', 'Osman']
+        };
+        
+        const productTypes = [
+            '🚀 Ускорение тапов x2',
+            '💎 Утроенные алмазы x3', 
+            '⚡ Дополнительные тапы +50',
+            '🔥 Мега буст x5',
+            '👑 VIP статус'
+        ];
+        
+        function addRecentPurchase(itemName, price, currency) {
+            const languages = Object.keys(customerNames);
+            const randomLanguage = languages[Math.floor(Math.random() * languages.length)];
+            const names = customerNames[randomLanguage];
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            
+            const purchase = {
+                id: generateUUID(),
+                customerName: randomName,
+                language: randomLanguage,
+                item: itemName,
+                price: price,
+                currency: currency,
+                timestamp: Date.now()
+            };
+            
+            recentPurchases.unshift(purchase);
+            
+            // Оставляем только последние 10 покупок
+            if (recentPurchases.length > 10) {
+                recentPurchases = recentPurchases.slice(0, 10);
+            }
+            
+            localStorage.setItem('recentPurchases', JSON.stringify(recentPurchases));
+            updateRecentPurchases();
+        }
+        
+        function generateRandomPurchase() {
+            const languages = Object.keys(customerNames);
+            const randomLanguage = languages[Math.floor(Math.random() * languages.length)];
+            const names = customerNames[randomLanguage];
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const randomProduct = productTypes[Math.floor(Math.random() * productTypes.length)];
+            
+            // Случайная цена и валюта
+            const currencies = ['TON', '⭐'];
+            const randomCurrency = currencies[Math.floor(Math.random() * currencies.length)];
+            const randomPrice = randomCurrency === 'TON' ? 
+                (Math.random() * 2 + 0.1).toFixed(1) : 
+                Math.floor(Math.random() * 300 + 50);
+            
+            const purchase = {
+                id: generateUUID(),
+                customerName: randomName,
+                language: randomLanguage,
+                item: randomProduct,
+                price: randomPrice,
+                currency: randomCurrency,
+                timestamp: Date.now()
+            };
+            
+            recentPurchases.unshift(purchase);
+            
+            // Оставляем только последние 10 покупок
+            if (recentPurchases.length > 10) {
+                recentPurchases = recentPurchases.slice(0, 10);
+            }
+            
+            localStorage.setItem('recentPurchases', JSON.stringify(recentPurchases));
+            updateRecentPurchases();
+        }
+        
+        function updateRecentPurchases() {
+            const container = document.getElementById('recent-purchases');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (recentPurchases.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center text-sm">Пока нет покупок</p>';
+                return;
+            }
+            
+            recentPurchases.forEach(purchase => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded-lg text-sm';
+                
+                const timeAgo = Math.floor((Date.now() - purchase.timestamp) / 1000);
+                let timeText = '';
+                if (timeAgo < 60) {
+                    timeText = 'только что';
+                } else if (timeAgo < 3600) {
+                    timeText = `${Math.floor(timeAgo / 60)}м назад`;
+                } else {
+                    timeText = `${Math.floor(timeAgo / 3600)}ч назад`;
+                }
+                
+                div.innerHTML = `
+                    <div>
+                        <div class="font-semibold">${purchase.customerName}</div>
+                        <div class="text-xs text-gray-400">${purchase.item}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-green-400 font-bold">${purchase.price} ${purchase.currency}</div>
+                        <div class="text-xs text-gray-400">${timeText}</div>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+        
+        // Автоматическое добавление случайных покупок каждые 5 секунд
+        setInterval(() => {
+            if (Math.random() < 0.3) { // 30% шанс добавить покупку
+                generateRandomPurchase();
+            }
+        }, 5000);
 
         function updateLeaderboard() {
             updatePlayersRanking();
