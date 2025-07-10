@@ -324,6 +324,16 @@
                         <p id="shop-diamond-balance" class="text-lg text-center">0.0000 💎</p>
                     </div>
                     
+                    <!-- Support Project Section -->
+                    <div class="bg-gradient-to-r from-green-600 to-green-800 p-4 rounded-lg">
+                        <h2 class="text-xl font-bold mb-3 text-center">❤️ Поддержать проект</h2>
+                        <div class="bg-black bg-opacity-30 p-3 rounded">
+                            <p class="text-sm mb-2 text-center">Поддержите развитие проекта</p>
+                            <p class="text-xs mb-3 text-center text-gray-300">TON адрес: UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC</p>
+                            <button id="support-project-btn" class="w-full p-2 bg-green-500 rounded text-black font-bold">💎 Поддержать</button>
+                        </div>
+                    </div>
+                    
                     <!-- Booster Section -->
                     <div class="bg-gray-800 p-4 rounded-lg">
                         <h2 class="text-xl font-bold mb-3 text-center">⚡ Бустеры</h2>
@@ -372,6 +382,16 @@
                         </div>
                     </div>
 
+                    <!-- Withdraw Diamonds Section -->
+                    <div class="bg-gradient-to-r from-purple-600 to-purple-800 p-4 rounded-lg">
+                        <h2 class="text-xl font-bold mb-3 text-center">💎 Вывести алмазы</h2>
+                        <div class="bg-black bg-opacity-30 p-3 rounded">
+                            <p class="text-sm mb-2 text-center">Вывод алмазов по UID</p>
+                            <p class="text-xs mb-3 text-center text-gray-300">Минимум: 1000 алмазов</p>
+                            <button id="withdraw-diamonds-btn" class="w-full p-2 bg-purple-500 rounded text-black font-bold">💎 Вывести алмазы</button>
+                        </div>
+                    </div>
+
                     <!-- Recent Purchases Panel -->
                     <div class="bg-gray-800 p-4 rounded-lg">
                         <h2 class="text-xl font-bold mb-3 text-center">🛍️ Недавние покупки</h2>
@@ -387,6 +407,12 @@
                 <!-- Leaderboard Screen -->
                 <div id="leaderboard-screen" class="hidden flex-col space-y-4">
                     <h1 class="text-2xl font-bold text-center">🏆 Рейтинг</h1>
+                    
+                    <!-- Update Info -->
+                    <div class="bg-gray-800 p-2 rounded text-center">
+                        <p class="text-xs text-gray-400">Обновляется каждые 5 минут</p>
+                        <p id="last-update-time" class="text-xs text-gray-400">Последнее обновление: только что</p>
+                    </div>
                     
                     <!-- Tabs -->
                     <div class="flex space-x-2">
@@ -1069,6 +1095,16 @@
             }
         });
 
+        // Support Project Button
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'support-project-btn') {
+                showSupportProjectPanel();
+            }
+            if (e.target.id === 'withdraw-diamonds-btn') {
+                showDevelopmentPanel();
+            }
+        });
+
         // Farming Logic
         tapBtn.addEventListener('click', () => {
             const user = users.find(u => u.id === currentUserId);
@@ -1392,23 +1428,116 @@
 
         // Payment functions
         function buyBooster(type, price, currency) {
-            showLoadingPayment();
-            
-            if (currency === 'ton') {
-                // TON payment через Telegram WebApp
-                initTonPayment(type, price, 'booster');
-            } else if (currency === 'stars') {
-                // Telegram Stars payment
-                initStarsPayment(type, price, 'booster');
-            }
+            showDevelopmentPanel();
         }
 
         function buyPremium(type, price, currency) {
-            showLoadingPayment();
-            
-            if (currency === 'ton') {
-                initTonPayment(type, price, 'premium');
+            showDevelopmentPanel();
+        }
+
+        // Панель "В разработке"
+        function showDevelopmentPanel() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
+                    <div class="text-center mb-4">
+                        <div class="text-6xl mb-4">🔧</div>
+                        <h3 class="text-xl font-bold mb-2">В разработке</h3>
+                        <p class="text-gray-300 text-sm">Эта функция находится в разработке</p>
+                    </div>
+                    <button onclick="closeDevelopmentModal()" 
+                            class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
+                        Понятно
+                    </button>
+                </div>
+            `;
+            modal.id = 'development-modal';
+            document.body.appendChild(modal);
+        }
+
+        function closeDevelopmentModal() {
+            const modal = document.getElementById('development-modal');
+            if (modal) {
+                modal.remove();
             }
+        }
+
+        // Панель поддержки проекта
+        function showSupportProjectPanel() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
+                    <div class="text-center mb-4">
+                        <div class="text-6xl mb-4">❤️</div>
+                        <h3 class="text-xl font-bold mb-2">Поддержать проект</h3>
+                        <p class="text-gray-300 text-sm mb-4">Поддержите развитие проекта</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-3 rounded mb-4">
+                        <p class="text-sm text-center mb-2">TON адрес для поддержки:</p>
+                        <p class="text-xs text-center text-gray-300 break-all">UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button onclick="openTelegramWallet()" 
+                                class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
+                            💎 Поддержать через Telegram Wallet
+                        </button>
+                        
+                        <button onclick="copyTonAddress()" 
+                                class="w-full p-3 bg-green-600 rounded hover:bg-green-700">
+                            📋 Скопировать адрес
+                        </button>
+                        
+                        <button onclick="closeSupportModal()" 
+                                class="w-full p-3 bg-gray-600 rounded hover:bg-gray-700">
+                            ❌ Отмена
+                        </button>
+                    </div>
+                </div>
+            `;
+            modal.id = 'support-modal';
+            document.body.appendChild(modal);
+        }
+
+        function closeSupportModal() {
+            const modal = document.getElementById('support-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function openTelegramWallet() {
+            try {
+                if (window.Telegram?.WebApp) {
+                    // Открываем Telegram Wallet
+                    window.Telegram.WebApp.openTelegramLink('https://t.me/wallet');
+                } else {
+                    // Альтернатива - открываем в новой вкладке
+                    window.open('https://t.me/wallet', '_blank');
+                }
+            } catch (error) {
+                console.error('Error opening Telegram Wallet:', error);
+                window.open('https://t.me/wallet', '_blank');
+            }
+        }
+
+        function copyTonAddress() {
+            const address = 'UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC';
+            navigator.clipboard.writeText(address).then(() => {
+                alert('TON адрес скопирован в буфер обмена!');
+            }).catch(() => {
+                // Fallback для старых браузеров
+                const textArea = document.createElement('textarea');
+                textArea.value = address;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('TON адрес скопирован в буфер обмена!');
+            });
         }
 
         // TON Payment через Telegram
@@ -2527,17 +2656,86 @@
             }
         }, 5000);
 
+        // Обновление рейтинга каждые 5 минут
+        setInterval(() => {
+            randomLeaderboardUsers = generateRandomUsers();
+            updateLastUpdateTime();
+            if (document.getElementById('leaderboard-screen') && !document.getElementById('leaderboard-screen').classList.contains('hidden')) {
+                updateLeaderboard();
+            }
+        }, 5 * 60 * 1000); // 5 минут
+
+        function updateLastUpdateTime() {
+            const lastUpdateElement = document.getElementById('last-update-time');
+            if (lastUpdateElement) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ru-RU', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                lastUpdateElement.textContent = `Последнее обновление: ${timeString}`;
+            }
+        }
+
+        // Список случайных имен для рейтинга
+        const randomNames = [
+            'Алексей', 'Мария', 'Дмитрий', 'Анна', 'Сергей', 'Елена', 'Андрей', 'Ольга',
+            'Владимир', 'Татьяна', 'Игорь', 'Наталья', 'Михаил', 'Ирина', 'Николай', 'Светлана',
+            'Павел', 'Юлия', 'Александр', 'Екатерина', 'Роман', 'Ангелина', 'Артем', 'Виктория',
+            'Максим', 'Кристина', 'Даниил', 'Алина', 'Кирилл', 'Полина', 'Иван', 'София',
+            'Георгий', 'Алиса', 'Тимофей', 'Василиса', 'Леонид', 'Ева', 'Матвей', 'Злата',
+            'Федор', 'Милана', 'Григорий', 'Арина', 'Константин', 'Варвара', 'Степан', 'Ульяна',
+            'Ярослав', 'Анжелика', 'Богдан', 'Ксения', 'Захар', 'Антонина', 'Арсений', 'Вероника'
+        ];
+
+        // Список случайных фамилий
+        const randomSurnames = [
+            'Иванов', 'Петров', 'Сидоров', 'Смирнов', 'Кузнецов', 'Попов', 'Васильев', 'Соколов',
+            'Михайлов', 'Новиков', 'Федоров', 'Морозов', 'Волков', 'Алексеев', 'Лебедев', 'Семенов',
+            'Егоров', 'Павлов', 'Козлов', 'Степанов', 'Николаев', 'Орлов', 'Андреев', 'Макаров',
+            'Никитин', 'Захаров', 'Зайцев', 'Соловьев', 'Борисов', 'Яковлев', 'Григорьев', 'Романов',
+            'Воробьев', 'Сергеев', 'Кузьмин', 'Фролов', 'Александров', 'Дмитриев', 'Королев', 'Гусев',
+            'Киселев', 'Ильин', 'Максимов', 'Поляков', 'Сорокин', 'Виноградов', 'Ковалев', 'Белов',
+            'Медведев', 'Антонов', 'Тарасов', 'Жуков', 'Баранов', 'Филиппов', 'Комаров', 'Давыдов'
+        ];
+
+        // Генерация случайных пользователей для рейтинга
+        function generateRandomUsers() {
+            const randomUsers = [];
+            for (let i = 0; i < 20; i++) {
+                const firstName = randomNames[Math.floor(Math.random() * randomNames.length)];
+                const lastName = randomSurnames[Math.floor(Math.random() * randomSurnames.length)];
+                const username = `${firstName}_${lastName}`;
+                const level = Math.floor(Math.random() * 50) + 1;
+                const totalDiamonds = Math.random() * 10000 + 100;
+                const isVip = Math.random() > 0.7; // 30% шанс быть VIP
+                
+                randomUsers.push({
+                    username: username,
+                    level: level,
+                    totalDiamonds: totalDiamonds,
+                    vipUntil: isVip ? Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000 : null
+                });
+            }
+            return randomUsers;
+        }
+
+        let randomLeaderboardUsers = generateRandomUsers();
+
         function updateLeaderboard() {
             updatePlayersRanking();
             updateGuildsRanking();
+            updateLastUpdateTime();
         }
 
         function updatePlayersRanking() {
-            const sortedUsers = [...users].sort((a, b) => b.totalDiamonds - a.totalDiamonds);
             const playersRankingDiv = document.getElementById('players-ranking');
             playersRankingDiv.innerHTML = '';
             
-            sortedUsers.slice(0, 10).forEach((user, index) => {
+            // Сортируем случайных пользователей по алмазам
+            const sortedRandomUsers = [...randomLeaderboardUsers].sort((a, b) => b.totalDiamonds - a.totalDiamonds);
+            
+            sortedRandomUsers.slice(0, 10).forEach((user, index) => {
                 const div = document.createElement('div');
                 div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-1';
                 
