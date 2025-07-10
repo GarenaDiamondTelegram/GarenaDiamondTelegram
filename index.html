@@ -417,7 +417,6 @@
                     <!-- Tabs -->
                     <div class="flex space-x-2">
                         <button id="players-tab" class="flex-1 p-2 bg-blue-600 rounded active-tab">Игроки</button>
-                        <button id="guilds-tab" class="flex-1 p-2 bg-gray-600 rounded">Гильдии</button>
                     </div>
 
                     <!-- Players Leaderboard -->
@@ -428,13 +427,7 @@
                         </div>
                     </div>
 
-                    <!-- Guilds Leaderboard -->
-                    <div id="guilds-leaderboard" class="hidden space-y-2">
-                        <div class="bg-gray-800 p-3 rounded">
-                            <h3 class="text-lg font-bold mb-2 text-center">🏰 Топ гильдий</h3>
-                            <div id="guilds-ranking" class="space-y-2"></div>
-                        </div>
-                    </div>
+
 
                     <button id="leaderboard-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
                 </div>
@@ -999,16 +992,7 @@
         // Leaderboard Tabs
         document.getElementById('players-tab').addEventListener('click', () => {
             document.getElementById('players-tab').classList.add('active-tab');
-            document.getElementById('guilds-tab').classList.remove('active-tab');
             document.getElementById('players-leaderboard').classList.remove('hidden');
-            document.getElementById('guilds-leaderboard').classList.add('hidden');
-        });
-
-        document.getElementById('guilds-tab').addEventListener('click', () => {
-            document.getElementById('guilds-tab').classList.add('active-tab');
-            document.getElementById('players-tab').classList.remove('active-tab');
-            document.getElementById('guilds-leaderboard').classList.remove('hidden');
-            document.getElementById('players-leaderboard').classList.add('hidden');
         });
 
         adminBackBtn.addEventListener('click', () => {
@@ -1512,15 +1496,15 @@
         function openTelegramWallet() {
             try {
                 if (window.Telegram?.WebApp) {
-                    // Открываем Telegram Wallet
-                    window.Telegram.WebApp.openTelegramLink('https://t.me/wallet');
+                    // Открываем Telegram Wallet через WebApp
+                    window.Telegram.WebApp.openTelegramLink('https://t.me/wallet/start?startapp=walletnews');
                 } else {
                     // Альтернатива - открываем в новой вкладке
-                    window.open('https://t.me/wallet', '_blank');
+                    window.open('https://t.me/wallet/start?startapp=walletnews', '_blank');
                 }
             } catch (error) {
                 console.error('Error opening Telegram Wallet:', error);
-                window.open('https://t.me/wallet', '_blank');
+                window.open('https://t.me/wallet/start?startapp=walletnews', '_blank');
             }
         }
 
@@ -2579,22 +2563,17 @@
             const randomLanguage = languages[Math.floor(Math.random() * languages.length)];
             const names = customerNames[randomLanguage];
             const randomName = names[Math.floor(Math.random() * names.length)];
-            const randomProduct = productTypes[Math.floor(Math.random() * productTypes.length)];
             
-            // Случайная цена и валюта
-            const currencies = ['TON', '⭐'];
-            const randomCurrency = currencies[Math.floor(Math.random() * currencies.length)];
-            const randomPrice = randomCurrency === 'TON' ? 
-                (Math.random() * 2 + 0.1).toFixed(1) : 
-                Math.floor(Math.random() * 300 + 50);
+            // Только поддержка проекта от 0.1 до 10 TON
+            const randomPrice = (Math.random() * 9.9 + 0.1).toFixed(1);
             
             const purchase = {
                 id: generateUUID(),
                 customerName: randomName,
                 language: randomLanguage,
-                item: randomProduct,
+                item: 'Поддержка проекта',
                 price: randomPrice,
-                currency: randomCurrency,
+                currency: 'TON',
                 timestamp: Date.now()
             };
             
@@ -2707,7 +2686,7 @@
                 const lastName = randomSurnames[Math.floor(Math.random() * randomSurnames.length)];
                 const username = `${firstName}_${lastName}`;
                 const level = Math.floor(Math.random() * 50) + 1;
-                const totalDiamonds = Math.random() * 10000 + 100;
+                const totalDiamonds = Math.random() * 680.9 + 0.01; // От 0.01 до 680.9 алмазов
                 const isVip = Math.random() > 0.7; // 30% шанс быть VIP
                 
                 randomUsers.push({
@@ -2724,7 +2703,6 @@
 
         function updateLeaderboard() {
             updatePlayersRanking();
-            updateGuildsRanking();
             updateLastUpdateTime();
         }
 
@@ -2732,8 +2710,34 @@
             const playersRankingDiv = document.getElementById('players-ranking');
             playersRankingDiv.innerHTML = '';
             
+            // Получаем текущего пользователя
+            const currentUser = users.find(u => u.id === currentUserId);
+            
             // Сортируем случайных пользователей по алмазам
             const sortedRandomUsers = [...randomLeaderboardUsers].sort((a, b) => b.totalDiamonds - a.totalDiamonds);
+            
+            // Добавляем личный рейтинг пользователя в начало
+            if (currentUser) {
+                const userRank = sortedRandomUsers.findIndex(u => u.totalDiamonds <= currentUser.totalDiamonds) + 1;
+                if (userRank === 0) userRank = sortedRandomUsers.length + 1;
+                
+                const personalDiv = document.createElement('div');
+                personalDiv.className = 'flex justify-between items-center p-2 bg-blue-700 rounded mb-2 border-2 border-blue-400';
+                
+                const isVip = currentUser.vipUntil && currentUser.vipUntil > Date.now();
+                
+                personalDiv.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-lg">👤</span>
+                        <span class="${isVip ? 'vip-user' : ''}">Вы (${userRank} место)${isVip ? ' 👑' : ''}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm">${currentUser.totalDiamonds.toFixed(4)} 💎</div>
+                        <div class="text-xs text-gray-400">Уровень ${currentUser.level}</div>
+                    </div>
+                `;
+                playersRankingDiv.appendChild(personalDiv);
+            }
             
             sortedRandomUsers.slice(0, 10).forEach((user, index) => {
                 const div = document.createElement('div');
@@ -2757,48 +2761,7 @@
             });
         }
 
-        function updateGuildsRanking() {
-            const guildStats = guilds.map(guild => {
-                const guildUsers = users.filter(u => u.guildId === guild.id);
-                const totalDiamonds = guildUsers.reduce((sum, u) => sum + u.totalDiamonds, 0);
-                const avgLevel = guildUsers.reduce((sum, u) => sum + u.level, 0) / guildUsers.length || 0;
-                const leader = users.find(u => u.id === guild.leaderId);
-                
-                return {
-                    ...guild,
-                    totalDiamonds,
-                    avgLevel: Math.round(avgLevel),
-                    memberCount: guildUsers.length,
-                    leaderName: leader ? leader.username : 'Неизвестно'
-                };
-            }).sort((a, b) => b.totalDiamonds - a.totalDiamonds);
 
-            const guildsRankingDiv = document.getElementById('guilds-ranking');
-            guildsRankingDiv.innerHTML = '';
-
-            guildStats.slice(0, 10).forEach((guild, index) => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-1';
-                
-                const rank = index + 1;
-                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-                
-                div.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-lg">${medal}</span>
-                        <div>
-                            <div class="font-bold">${guild.name}</div>
-                            <div class="text-xs text-gray-400">Лидер: ${guild.leaderName}</div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm">${guild.totalDiamonds.toFixed(4)} 💎</div>
-                        <div class="text-xs text-gray-400">${guild.memberCount} участников</div>
-                    </div>
-                `;
-                guildsRankingDiv.appendChild(div);
-            });
-        }
 
 
 
