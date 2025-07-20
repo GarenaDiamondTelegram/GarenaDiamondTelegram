@@ -2,2808 +2,326 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Игра</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка...</title>
     <style>
-        .device-frame {
-            position: relative;
+        body {
             background: #000;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-        }
-        
-        /* Мобильная рамка */
-        .mobile-frame {
-            width: 390px;
-            height: 844px;
-            border-radius: 40px;
-            padding: 20px;
-        }
-        
-        /* Компьютерная рамка */
-        .desktop-frame {
-            width: 1200px;
-            height: 800px;
-            border-radius: 12px;
-            padding: 15px;
-            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-        }
-        
-        .device-screen {
-            width: 100%;
-            height: 100%;
-            background: #1a1a1a;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .mobile-screen {
-            border-radius: 20px;
-        }
-        
-        .desktop-screen {
-            border-radius: 8px;
-            background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
-        }
-        
-        /* Адаптивность */
-        @media (max-width: 420px) {
-            .mobile-frame {
-                width: 95vw;
-                height: 90vh;
-                padding: 10px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .desktop-frame {
-                width: 95vw;
-                height: 90vh;
-                padding: 10px;
-            }
-        }
-        /* Элементы мобильной рамки */
-        .mobile-frame::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 5px;
-            background: #333;
-            border-radius: 5px;
-        }
-        .mobile-frame::after {
-            content: '';
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 40px;
-            background: #333;
-            border-radius: 50%;
-            border: 2px solid #555;
-        }
-        
-        /* Элементы десктопной рамки */
-        .desktop-frame::before {
-            content: '';
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            right: 5px;
-            height: 25px;
-            background: #333;
-            border-radius: 8px 8px 0 0;
+            min-height: 100vh;
+            margin: 0;
             display: flex;
             align-items: center;
-            padding: 0 10px;
+            justify-content: center;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
         }
-        
-        .desktop-frame::after {
-            content: '● ● ●';
+        .phone-frame {
+            position: relative;
+            width: 375px;
+            height: 812px;
+            max-width: 95vw;
+            max-height: 95vh;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 8px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 0 2px #333;
+            margin: 20px;
+        }
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+        .phone-notch {
             position: absolute;
-            top: 12px;
-            left: 15px;
-            color: #666;
-            font-size: 12px;
-            letter-spacing: 5px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
         }
-        .diamond-panel {
-            background: #2d3748;
-            padding: 4px 8px;
-            border-radius: 12px;
+        .desktop-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
         }
-        .notification-badge {
+        .desktop-warning-content {
+            background: #333;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .desktop-warning h2 {
+            color: #ff0000;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .desktop-warning p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .mobile-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .particles {
             position: absolute;
-            top: -4px;
-            right: -4px;
-            background: #dc2626;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-            line-height: 1;
+            left: 0; top: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
         }
-        .enter-animation {
-            animation: enterAnimation 0.5s ease-in-out forwards;
+        .loader-container, .farming-container {
+            background: rgba(30,34,60,0.92);
+            border-radius: 32px;
+            box-shadow: 0 8px 32px 0 #00ffe799, 0 1.5px 0 #fff1 inset;
+            padding: 48px 36px 36px 36px;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-sizing: border-box;
         }
-        .exit-animation {
-            animation: exitAnimation 0.5s ease-in-out forwards;
-        }
-        .notifications-slide-down {
-            animation: slideDown 0.5s ease-in-out forwards;
-        }
-        .notifications-slide-up {
-            animation: slideUp 0.5s ease-in-out forwards;
-        }
-        .active-tab {
-            background: #2563eb !important;
-        }
-        .vip-user {
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .loader-title {
+            font-size: 2.2em;
+            color: #00ffe7;
+            text-shadow: 0 0 24px #00ffe7, 0 0 8px #fff;
             font-weight: bold;
+            margin-bottom: 32px;
+            letter-spacing: 2px;
         }
-        .booster-active {
-            border: 2px solid #10b981;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        .progress-bar {
+            position: relative;
+            width: 280px;
+            height: 38px;
+            background: #181c2f;
+            border-radius: 20px;
+            margin: 0 auto 28px auto;
+            box-shadow: 0 2px 16px #00ffe799, 0 0 0 2px #00ffe7 inset;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
         }
-        @keyframes enterAnimation {
-            0% { transform: scale(1) translate(0, 0); opacity: 1; }
-            100% { transform: scale(0.2) translate(-100px, -100px); opacity: 0; }
+        .progress-inner {
+            background: linear-gradient(90deg, #00ff00 0%, #00cc00 100%);
+            height: 100%;
+            border-radius: 20px;
+            width: 0%;
+            position: absolute;
+            left: 0; top: 0;
+            z-index: 1;
+            transition: width 0.3s cubic-bezier(.4,1.6,.6,1);
+            opacity: 0.35;
         }
-        @keyframes exitAnimation {
-            0% { transform: scale(0.2) translate(-100px, -100px); opacity: 0; }
-            100% { transform: scale(1) translate(0, 0); opacity: 1; }
+        .loader-percent {
+            font-size: 2.6em;
+            color: #00ff00;
+            text-shadow: 0 0 18px #00ff00, 0 0 8px #fff;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
         }
-        @keyframes slideDown {
-            0% { transform: translateY(-100%); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
+        .loader-ready {
+            color: #fff;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 18px;
+            text-shadow: 0 0 12px #fff;
+            display: none;
         }
-        @keyframes slideUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100%); opacity: 0; }
+        .flash {
+            position: absolute;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            transition: opacity 0.5s;
+            border-radius: 32px;
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .farming-btn {
+            margin-top: 40px;
+            font-size: 1.5em;
+            background: linear-gradient(90deg, #00ff00 0%, #00cc00 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 18px 48px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 12px #00ff0088;
+            transition: background 0.2s, transform 0.1s;
         }
-        .pulse-animation {
-            animation: pulse 2s infinite;
+        .farming-btn:active {
+            background: linear-gradient(90deg, #00cc00 0%, #00ff00 100%);
+            transform: scale(1.04);
+        }
+        .hidden { display: none !important; }
+        @media (max-width: 480px) {
+            .phone-frame {
+                width: 100vw;
+                height: 100vh;
+                max-width: 100vw;
+                max-height: 100vh;
+                border-radius: 0;
+                margin: 0;
+                padding: 0;
+            }
+            .phone-screen {
+                border-radius: 0;
+            }
+            .phone-notch {
+                display: none;
+            }
         }
     </style>
-  </head>
-  <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen w-screen overflow-x-hidden">
-      <div id="device-container" class="device-frame">
-          <div id="device-screen" class="device-screen">
-              <div id="app" class="w-full p-4 sm:p-6">
-                <!-- Loading Screen -->
-                <div id="loading-screen" class="flex flex-col items-center justify-center h-screen">
-                    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
-                    <p class="mt-4 text-lg">Загрузка...</p>
+</head>
+<body>
+    <div class="desktop-warning" id="desktop-warning">
+        <div class="desktop-warning-content">
+            <div class="mobile-icon">📱</div>
+            <h2>Мобильное приложение</h2>
+            <p>Это приложение доступно только на мобильных устройствах.</p>
+            <p>Откройте Telegram на вашем телефоне или планшете для использования приложения.</p>
+        </div>
+    </div>
+    <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+            <canvas class="particles" id="particles"></canvas>
+            <div class="loader-container" id="loader">
+                <div class="loader-title">ЗАГРУЗКА</div>
+                <div class="progress-bar">
+                    <div class="progress-inner" id="progress-inner"></div>
                 </div>
-
-                <!-- Registration Screen -->
-                <div id="registration-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Регистрация</h1>
-                    <input id="phone" type="tel" placeholder="Номер телефона" class="w-full p-2 bg-gray-800 rounded text-white text-base">
-                    <input id="email" type="email" placeholder="Почта" class="w-full p-2 bg-gray-800 rounded text-white text-base">
-                    <input id="ff-id" type="text" placeholder="Free Fire ID" class="w-full p-2 bg-gray-800 rounded text-white text-base">
-                    <input id="password" type="password" placeholder="Пароль" class="w-full p-2 bg-gray-800 rounded text-white text-base">
-                    <button id="register-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Зарегистрироваться</button>
-                </div>
-
-                <!-- Main Menu -->
-                <div id="main-menu" class="hidden flex-col space-y-4">
-                    <div class="flex justify-between items-center">
-                        <div class="flex space-x-2">
-                            <button id="profile-btn" class="p-2 bg-gray-800 rounded-full hover:bg-gray-700">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                            </button>
-                            <button id="notifications-btn" class="relative p-2 bg-gray-800 rounded-full hover:bg-gray-700">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                </svg>
-                                <span id="notification-badge" class="notification-badge hidden">0</span>
-                            </button>
-                        </div>
-                        <div class="diamond-panel">
-                            <p id="diamond-balance" class="text-lg">0.0000 💎</p>
-                            <p id="user-level" class="text-sm text-gray-300">Уровень 1</p>
-                        </div>
-                    </div>
-                    <button id="farm-btn" class="w-full p-2 bg-green-600 rounded hover:bg-green-700">Фармить 💎</button>
-                    <button id="guild-btn" class="w-full p-2 bg-purple-600 rounded hover:bg-purple-700">Гильдия</button>
-                    <button id="shop-btn" class="w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700">🛒 Магазин</button>
-                    <button id="leaderboard-btn" class="w-full p-2 bg-blue-500 rounded hover:bg-blue-600">🏆 Рейтинг</button>
-                    <button id="admin-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700 hidden">Админ-панель</button>
-                </div>
-
-                <!-- Farming Screen -->
-                <div id="farm-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Фарм 💎</h1>
-                    <p id="diamond-count" class="text-lg text-center">0.0000 💎</p>
-                    <p id="tap-count" class="text-lg text-center">Тапы: 0/100</p>
-                    <p id="cooldown" class="text-lg text-center hidden">Осталось: 4ч 00м 00с</p>
-                    <button id="tap-btn" class="w-32 h-32 mx-auto bg-gray-800 rounded-full flex justify-center items-center">
-                        <img id="tap-image" src="https://i.ibb.co/B5McMybk/Chat-GPT-Image-24-2025-04-14-46.png" alt="Garena Logo" class="h-24 w-24 object-contain">
-                    </button>
-                    <button id="back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Profile Screen -->
-                <div id="profile-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Профиль</h1>
-                    
-                    <!-- Player Stats -->
-                    <div class="bg-gray-800 p-4 rounded-lg space-y-2">
-                        <p id="profile-username" class="text-lg font-bold"></p>
-                        <p id="profile-level" class="text-md"></p>
-                        <p id="profile-experience" class="text-sm"></p>
-                        <p id="profile-energy" class="text-sm"></p>
-                        <p id="profile-diamonds" class="text-lg"></p>
-                        <p id="profile-total-stats" class="text-sm text-gray-400"></p>
-                        <p id="profile-vip-status" class="text-sm"></p>
-                    </div>
-                    
-                    <!-- Account Info -->
-                    <div class="bg-gray-800 p-4 rounded-lg space-y-2">
-                        <h3 class="text-lg font-bold">Данные аккаунта</h3>
-                        <p id="profile-phone" class="text-sm"></p>
-                        <p id="profile-email" class="text-sm"></p>
-                        <p id="profile-ff-id" class="text-sm"></p>
-                        <p id="profile-password" class="text-sm"></p>
-                    </div>
-                    
-                    <!-- Active Boosters -->
-                    <div id="profile-boosters" class="bg-green-800 p-4 rounded-lg space-y-2 hidden">
-                        <h3 class="text-lg font-bold">🚀 Активные бустеры</h3>
-                        <div id="active-boosters-list"></div>
-                    </div>
-                    
-                    <button id="delete-account-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700">Удалить аккаунт</button>
-                    <button id="profile-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Notifications Screen -->
-                <div id="notifications-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Уведомления</h1>
-                    <div id="notifications-list" class="flex-col space-y-2"></div>
-                    <button id="clear-notifications-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700">Очистить уведомления</button>
-                    <button id="notifications-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Guild Screen -->
-                <div id="guild-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Гильдия</h1>
-                    <p id="guild-status" class="text-lg text-center"></p>
-                    <div id="create-guild-section" class="flex-col space-y-2">
-                        <input id="guild-name" type="text" placeholder="Название гильдии" class="w-full p-2 bg-gray-800 rounded text-white text-base">
-                        <button id="create-guild-btn" class="w-full p-2 bg-purple-600 rounded hover:bg-purple-700">Создать гильдию (10 💎)</button>
-                    </div>
-                    <div id="join-guild-section" class="flex-col space-y-2">
-                        <select id="guild-select" class="w-full p-2 bg-gray-800 rounded text-white text-base"></select>
-                        <button id="join-guild-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Подать заявку</button>
-                    </div>
-                    <button id="guild-members-btn" class="w-full p-2 bg-gray-600 rounded hover:bg-gray-700">Участники</button>
-                    <button id="leave-guild-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700 hidden">Покинуть гильдию</button>
-                    <button id="disband-guild-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700 hidden">Распустить гильдию</button>
-                    <button id="guild-requests-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700 hidden">Заявки на вступление</button>
-                    <button id="guild-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Guild Members Screen -->
-                <div id="guild-members-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Участники гильдии</h1>
-                    <div id="guild-members-list" class="flex-col space-y-2"></div>
-                    <button id="members-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Guild Requests Screen -->
-                <div id="guild-requests-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Заявки на вступление</h1>
-                    <div id="guild-requests-list" class="flex-col space-y-2"></div>
-                    <button id="requests-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Shop Screen -->
-                <div id="shop-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">🛒 Магазин</h1>
-                    <div class="diamond-panel">
-                        <p id="shop-diamond-balance" class="text-lg text-center">0.0000 💎</p>
-                    </div>
-                    
-                    <!-- Support Project Section -->
-                    <div class="bg-gradient-to-r from-green-600 to-green-800 p-4 rounded-lg">
-                        <h2 class="text-xl font-bold mb-3 text-center">❤️ Поддержать проект</h2>
-                        <div class="bg-black bg-opacity-30 p-3 rounded">
-                            <p class="text-sm mb-2 text-center">Поддержите развитие проекта</p>
-                            <p class="text-xs mb-3 text-center text-gray-300">TON адрес: UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC</p>
-                            <button id="support-project-btn" class="w-full p-2 bg-green-500 rounded text-black font-bold">💎 Поддержать</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Booster Section -->
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <h2 class="text-xl font-bold mb-3 text-center">⚡ Бустеры</h2>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-gray-700 p-3 rounded text-center">
-                                <div class="text-2xl mb-2">🚀</div>
-                                <p class="text-sm mb-2">x2 Скорость тапов</p>
-                                <p class="text-xs mb-2">30 минут</p>
-                                <button class="buy-booster-btn w-full p-1 bg-blue-600 rounded text-sm" data-type="speed" data-price="100" data-currency="stars">100 ⭐</button>
-                            </div>
-                            <div class="bg-gray-700 p-3 rounded text-center">
-                                <div class="text-2xl mb-2">💎</div>
-                                <p class="text-sm mb-2">x3 Алмазы</p>
-                                <p class="text-xs mb-2">1 час</p>
-                                <button class="buy-booster-btn w-full p-1 bg-green-600 rounded text-sm" data-type="diamonds" data-price="200" data-currency="stars">200 ⭐</button>
-                            </div>
-                            <div class="bg-gray-700 p-3 rounded text-center">
-                                <div class="text-2xl mb-2">⚡</div>
-                                <p class="text-sm mb-2">+50 Тапов</p>
-                                <p class="text-xs mb-2">Мгновенно</p>
-                                <button class="buy-booster-btn w-full p-1 bg-yellow-600 rounded text-sm" data-type="taps" data-price="0.1" data-currency="ton">0.1 TON</button>
-                            </div>
-                            <div class="bg-gray-700 p-3 rounded text-center">
-                                <div class="text-2xl mb-2">🔥</div>
-                                <p class="text-sm mb-2">Мега буст</p>
-                                <p class="text-xs mb-2">x5 все на 2ч</p>
-                                <button class="buy-booster-btn w-full p-1 bg-red-600 rounded text-sm" data-type="mega" data-price="0.5" data-currency="ton">0.5 TON</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Premium Section -->
-                    <div class="bg-gradient-to-r from-yellow-600 to-yellow-800 p-4 rounded-lg">
-                        <h2 class="text-xl font-bold mb-3 text-center">👑 Премиум</h2>
-                        <div class="space-y-3">
-                            <div class="bg-black bg-opacity-30 p-3 rounded">
-                                <p class="text-sm mb-2">VIP статус (30 дней)</p>
-                                <ul class="text-xs space-y-1 mb-3">
-                                    <li>• x2 к алмазам навсегда</li>
-                                    <li>• +100 энергии</li>
-                                    <li>• Эксклюзивная иконка</li>
-                                    <li>• Приоритет в гильдиях</li>
-                                </ul>
-                                <button class="buy-premium-btn w-full p-2 bg-yellow-500 rounded text-black font-bold" data-type="vip" data-price="2" data-currency="ton">2 TON</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Withdraw Diamonds Section -->
-                    <div class="bg-gradient-to-r from-purple-600 to-purple-800 p-4 rounded-lg">
-                        <h2 class="text-xl font-bold mb-3 text-center">💎 Вывести алмазы</h2>
-                        <div class="bg-black bg-opacity-30 p-3 rounded">
-                            <p class="text-sm mb-2 text-center">Вывод алмазов по UID</p>
-                            <p class="text-xs mb-3 text-center text-gray-300">Минимум: 1000 алмазов</p>
-                            <button id="withdraw-diamonds-btn" class="w-full p-2 bg-purple-500 rounded text-black font-bold">💎 Вывести алмазы</button>
-                        </div>
-                    </div>
-
-                    <!-- Recent Purchases Panel -->
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <h2 class="text-xl font-bold mb-3 text-center">🛍️ Недавние покупки</h2>
-                        <div id="recent-purchases" class="space-y-2 max-h-40 overflow-y-auto">
-                            <!-- Покупки будут генерироваться динамически -->
-                        </div>
-                        <p class="text-xs text-gray-400 text-center mt-2">Обновляется каждые 5 секунд</p>
-                    </div>
-
-                    <button id="shop-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Leaderboard Screen -->
-                <div id="leaderboard-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">🏆 Рейтинг</h1>
-                    
-                    <!-- Update Info -->
-                    <div class="bg-gray-800 p-2 rounded text-center">
-                        <p class="text-xs text-gray-400">Обновляется каждые 5 минут</p>
-                        <p id="last-update-time" class="text-xs text-gray-400">Последнее обновление: только что</p>
-                    </div>
-                    
-                    <!-- Tabs -->
-                    <div class="flex space-x-2">
-                        <button id="players-tab" class="flex-1 p-2 bg-blue-600 rounded active-tab">Игроки</button>
-                    </div>
-
-                    <!-- Players Leaderboard -->
-                    <div id="players-leaderboard" class="space-y-2">
-                        <div class="bg-gray-800 p-3 rounded">
-                            <h3 class="text-lg font-bold mb-2 text-center">👑 Топ игроков</h3>
-                            <div id="players-ranking" class="space-y-2"></div>
-                        </div>
-                    </div>
-
-
-
-                    <button id="leaderboard-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Admin Panel Main Screen -->
-                <div id="admin-panel" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">🔧 Админ-панель</h1>
-                    
-                    <!-- Статистика -->
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <h3 class="text-lg font-bold mb-2">📊 Статистика</h3>
-                        <div class="grid grid-cols-2 gap-2 text-sm">
-                            <div>Пользователей: <span id="admin-users-count">0</span></div>
-                            <div>Гильдий: <span id="admin-guilds-count">0</span></div>
-                            <div>Онлайн: <span id="admin-online-count">0</span></div>
-                            <div>VIP: <span id="admin-vip-count">0</span></div>
-                        </div>
-                    </div>
-                    
-                    <button id="admin-broadcast-btn" class="w-full p-2 bg-green-600 rounded hover:bg-green-700">📢 Рассылка</button>
-                    <button id="admin-users-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">👥 Пользователи</button>
-                    <button id="admin-guilds-btn" class="w-full p-2 bg-purple-600 rounded hover:bg-purple-700">🏰 Гильдии</button>
-                    <button id="admin-analytics-btn" class="w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700">📈 Аналитика</button>
-                    <button id="admin-settings-btn" class="w-full p-2 bg-gray-600 rounded hover:bg-gray-700">⚙️ Настройки</button>
-                    <button id="clear-db-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700">🗑️ Очистить БД</button>
-                    <button id="admin-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">← Назад</button>
-                </div>
-
-                <!-- Admin Broadcast Screen -->
-                <div id="admin-broadcast-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">📢 Рассылка</h1>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm mb-2">Тип рассылки:</label>
-                            <select id="broadcast-type" class="w-full p-2 bg-gray-800 rounded text-white">
-                                <option value="all">Всем пользователям</option>
-                                <option value="vip">Только VIP</option>
-                                <option value="level">По уровню</option>
-                                <option value="guild">Участникам гильдий</option>
-                            </select>
-                        </div>
-                        
-                        <div id="broadcast-level-filter" class="hidden">
-                            <label class="block text-sm mb-2">Минимальный уровень:</label>
-                            <input type="number" id="broadcast-min-level" min="1" value="1" class="w-full p-2 bg-gray-800 rounded text-white">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm mb-2">Заголовок:</label>
-                            <input type="text" id="broadcast-title" placeholder="Заголовок уведомления" class="w-full p-2 bg-gray-800 rounded text-white">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm mb-2">Сообщение:</label>
-                            <textarea id="broadcast-message" placeholder="Текст сообщения..." rows="4" class="w-full p-2 bg-gray-800 rounded text-white"></textarea>
-                        </div>
-                        
-                        <div class="flex space-x-2">
-                            <button id="send-broadcast-btn" class="flex-1 p-2 bg-green-600 rounded hover:bg-green-700">📤 Отправить</button>
-                            <button id="preview-broadcast-btn" class="flex-1 p-2 bg-blue-600 rounded hover:bg-blue-700">👁️ Превью</button>
-                        </div>
-                    </div>
-                    
-                    <button id="broadcast-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">← Назад</button>
-                </div>
-
-                <!-- Admin Analytics Screen -->
-                <div id="admin-analytics-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">📈 Аналитика</h1>
-                    
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-bold mb-2">💎 Алмазы</h3>
-                            <div class="space-y-1 text-sm">
-                                <div>Всего добыто: <span id="total-diamonds">0</span> 💎</div>
-                                <div>Среднее на игрока: <span id="avg-diamonds">0</span> 💎</div>
-                                <div>Максимум у игрока: <span id="max-diamonds">0</span> 💎</div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-bold mb-2">🎯 Активность</h3>
-                            <div class="space-y-1 text-sm">
-                                <div>Всего тапов: <span id="total-taps">0</span></div>
-                                <div>Среднее на игрока: <span id="avg-taps">0</span></div>
-                                <div>Активных сегодня: <span id="active-today">0</span></div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-bold mb-2">🏆 Уровни</h3>
-                            <div id="level-distribution" class="space-y-1 text-sm"></div>
-                        </div>
-                    </div>
-                    
-                    <button id="analytics-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">← Назад</button>
-                </div>
-
-                <!-- Admin Settings Screen -->
-                <div id="admin-settings-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">⚙️ Настройки</h1>
-                    
-                    <div class="space-y-4">
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-bold mb-2">🎮 Игровые параметры</h3>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-sm mb-1">Базовые тапы:</label>
-                                    <input type="number" id="setting-base-taps" value="100" min="50" class="w-full p-2 bg-gray-700 rounded text-white">
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1">Алмазов за тап:</label>
-                                    <input type="number" id="setting-diamonds-per-tap" value="0.0001" step="0.0001" class="w-full p-2 bg-gray-700 rounded text-white">
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1">Опыта за тап:</label>
-                                    <input type="number" id="setting-exp-per-tap" value="1" min="1" class="w-full p-2 bg-gray-700 rounded text-white">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-bold mb-2">⏰ Временные настройки</h3>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-sm mb-1">Кулдаун (часы):</label>
-                                    <input type="number" id="setting-cooldown-hours" value="4" min="1" max="24" class="w-full p-2 bg-gray-700 rounded text-white">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button id="save-settings-btn" class="w-full p-2 bg-green-600 rounded hover:bg-green-700">💾 Сохранить</button>
-                    </div>
-                    
-                    <button id="settings-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">← Назад</button>
-                </div>
-
-                <!-- Admin Users Screen -->
-                <div id="admin-users-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Пользователи</h1>
-                    <select id="user-select" class="w-full p-2 bg-gray-800 rounded text-white text-base"></select>
-                    <div id="user-details" class="flex-col space-y-2">
-                        <input id="admin-username" type="text" class="w-full p-2 bg-gray-800 rounded text-white text-base" placeholder="Никнейм Telegram" disabled>
-                        <input id="admin-phone" type="tel" class="w-full p-2 bg-gray-800 rounded text-white text-base" placeholder="Телефон">
-                        <input id="admin-email" type="email" class="w-full p-2 bg-gray-800 rounded text-white text-base" placeholder="Почта">
-                        <input id="admin-ff-id" type="text" class="w-full p-2 bg-gray-800 rounded text-white text-base" placeholder="Free Fire ID">
-                        <input id="admin-password" type="text" class="w-full p-2 bg-gray-800 rounded text-white text-base" placeholder="Пароль">
-                        <input id="admin-diamonds" type="number" step="0.0001" class="w-full p-2 bg-gray-800 rounded text-white text-base" placeholder="Баланс 💎">
-                        <button id="save-user-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Сохранить</button>
-                    </div>
-                    <button id="admin-users-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
-
-                <!-- Admin Guilds Screen -->
-                <div id="admin-guilds-screen" class="hidden flex-col space-y-4">
-                    <h1 class="text-2xl font-bold text-center">Гильдии</h1>
-                    <select id="guild-select-admin" class="w-full p-2 bg-gray-800 rounded text-white text-base"></select>
-                    <div id="guild-details" class="flex-col space-y-2">
-                        <input id="admin-guild-name" type="text" class="w-full p-2 bg-gray-800 rounded text-white text-base" placeholder="Название гильдии">
-                        <select id="admin-guild-leader" class="w-full p-2 bg-gray-800 rounded text-white text-base"></select>
-                        <div id="admin-guild-members" class="flex-col space-y-1"></div>
-                        <div id="admin-guild-requests" class="flex-col space-y-2"></div>
-                        <button id="delete-guild-btn" class="w-full p-2 bg-red-600 rounded hover:bg-red-700">Удалить гильдию</button>
-                        <button id="save-guild-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Сохранить</button>
-                    </div>
-                    <button id="admin-guilds-back-btn" class="w-full p-2 bg-blue-600 rounded hover:bg-blue-700">Назад</button>
-                </div>
+                <div class="loader-percent" id="loader-percent">0%</div>
+                <div class="loader-ready" id="loader-ready">Кликните для входа в зону</div>
+            </div>
+            <div class="flash" id="flash"></div>
+            <div class="farming-container hidden" id="farming-page">
+                <button class="farming-btn" id="farming-btn">Фарминг</button>
             </div>
         </div>
     </div>
-
     <script>
-        const TelegramWebApp = window.Telegram.WebApp;
-        TelegramWebApp.ready();
-
-        // State
-        let currentUserId = null;
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        let guilds = JSON.parse(localStorage.getItem('guilds')) || [];
-        let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-        let activeBoosters = JSON.parse(localStorage.getItem('activeBoosters')) || {};
-
-        // DOM Elements
-        const loadingScreen = document.getElementById('loading-screen');
-        const registrationScreen = document.getElementById('registration-screen');
-        const mainMenu = document.getElementById('main-menu');
-        const farmScreen = document.getElementById('farm-screen');
-        const profileScreen = document.getElementById('profile-screen');
-        const notificationsScreen = document.getElementById('notifications-screen');
-        const guildScreen = document.getElementById('guild-screen');
-        const guildMembersScreen = document.getElementById('guild-members-screen');
-        const guildRequestsScreen = document.getElementById('guild-requests-screen');
-        const shopScreen = document.getElementById('shop-screen');
-        const leaderboardScreen = document.getElementById('leaderboard-screen');
-        const adminPanel = document.getElementById('admin-panel');
-        const adminUsersScreen = document.getElementById('admin-users-screen');
-        const adminGuildsScreen = document.getElementById('admin-guilds-screen');
-        const registerBtn = document.getElementById('register-btn');
-        const farmBtn = document.getElementById('farm-btn');
-        const guildBtn = document.getElementById('guild-btn');
-        const shopBtn = document.getElementById('shop-btn');
-        const leaderboardBtn = document.getElementById('leaderboard-btn');
-        const profileBtn = document.getElementById('profile-btn');
-        const notificationsBtn = document.getElementById('notifications-btn');
-        const notificationBadge = document.getElementById('notification-badge');
-        const adminBtn = document.getElementById('admin-btn');
-        const tapBtn = document.getElementById('tap-btn');
-        const backBtn = document.getElementById('back-btn');
-        const profileBackBtn = document.getElementById('profile-back-btn');
-        const notificationsBackBtn = document.getElementById('notifications-back-btn');
-        const guildBackBtn = document.getElementById('guild-back-btn');
-        const membersBackBtn = document.getElementById('members-back-btn');
-        const requestsBackBtn = document.getElementById('requests-back-btn');
-        const adminBackBtn = document.getElementById('admin-back-btn');
-        const adminUsersBtn = document.getElementById('admin-users-btn');
-        const adminGuildsBtn = document.getElementById('admin-guilds-btn');
-        const adminUsersBackBtn = document.getElementById('admin-users-back-btn');
-        const adminGuildsBackBtn = document.getElementById('admin-guilds-back-btn');
-        const deleteAccountBtn = document.getElementById('delete-account-btn');
-        const diamondCount = document.getElementById('diamond-count');
-        const tapCount = document.getElementById('tap-count');
-        const cooldown = document.getElementById('cooldown');
-        const diamondBalance = document.getElementById('diamond-balance');
-        const guildStatus = document.getElementById('guild-status');
-        const guildNameInput = document.getElementById('guild-name');
-        const createGuildBtn = document.getElementById('create-guild-btn');
-        const guildSelect = document.getElementById('guild-select');
-        const joinGuildBtn = document.getElementById('join-guild-btn');
-        const guildMembersBtn = document.getElementById('guild-members-btn');
-        const leaveGuildBtn = document.getElementById('leave-guild-btn');
-        const disbandGuildBtn = document.getElementById('disband-guild-btn');
-        const guildRequestsBtn = document.getElementById('guild-requests-btn');
-        const guildMembersList = document.getElementById('guild-members-list');
-        const guildRequestsList = document.getElementById('guild-requests-list');
-        const notificationsList = document.getElementById('notifications-list');
-        const clearNotificationsBtn = document.getElementById('clear-notifications-btn');
-        const userSelect = document.getElementById('user-select');
-        const adminUsername = document.getElementById('admin-username');
-        const adminPhone = document.getElementById('admin-phone');
-        const adminEmail = document.getElementById('admin-email');
-        const adminFfId = document.getElementById('admin-ff-id');
-        const adminPassword = document.getElementById('admin-password');
-        const adminDiamonds = document.getElementById('admin-diamonds');
-        const saveUserBtn = document.getElementById('save-user-btn');
-        const guildSelectAdmin = document.getElementById('guild-select-admin');
-        const adminGuildName = document.getElementById('admin-guild-name');
-        const adminGuildLeader = document.getElementById('admin-guild-leader');
-        const adminGuildMembers = document.getElementById('admin-guild-members');
-        const adminGuildRequests = document.getElementById('admin-guild-requests');
-        const saveGuildBtn = document.getElementById('save-guild-btn');
-        const deleteGuildBtn = document.getElementById('delete-guild-btn');
-        const clearDbBtn = document.getElementById('clear-db-btn');
-
-        // Get Telegram user data
-        const telegramUser = TelegramWebApp.initDataUnsafe.user;
-        let telegramUsername = telegramUser ? (telegramUser.username || telegramUser.id.toString()) : 'Unknown';
-
-        // Определение типа устройства и установка рамки
-        function setupDeviceFrame() {
-            const container = document.getElementById('device-container');
-            const screen = document.getElementById('device-screen');
-            
-            // Проверяем размер экрана и является ли это мобильным устройством
-            const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                container.className = 'device-frame mobile-frame';
-                screen.className = 'device-screen mobile-screen';
-            } else {
-                container.className = 'device-frame desktop-frame';
-                screen.className = 'device-screen desktop-screen';
-            }
+        // Проверка на мобильное устройство
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                   window.innerWidth <= 768;
+        }
+        
+        // Показываем предупреждение только на десктопе
+        if (!isMobile()) {
+            document.getElementById('desktop-warning').style.display = 'flex';
+        } else {
+            document.getElementById('desktop-warning').style.display = 'none';
         }
 
-        // Установка рамки при загрузке и изменении размера окна
-        setupDeviceFrame();
-        window.addEventListener('resize', setupDeviceFrame);
-
-        // Always show loading screen on page load
-        setTimeout(() => {
-            // Update existing users with new fields
-            users.forEach(user => {
-                if (!user.hasOwnProperty('level')) user.level = 1;
-                if (!user.hasOwnProperty('experience')) user.experience = 0;
-                if (!user.hasOwnProperty('vipUntil')) user.vipUntil = null;
-                if (!user.hasOwnProperty('totalTaps')) user.totalTaps = 0;
-                if (!user.hasOwnProperty('totalDiamonds')) user.totalDiamonds = user.diamonds || 0;
-                if (!user.hasOwnProperty('maxTaps')) user.maxTaps = 100 + (user.level - 1) * 25;
-                // Удаляем старые поля энергии
-                delete user.energy;
-                delete user.maxEnergy;
-            });
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            currentUserId = localStorage.getItem('currentUserId');
-            if (currentUserId && users.find(u => u.id === currentUserId)) {
-                showMainMenu();
-            } else {
-                loadingScreen.classList.add('hidden');
-                registrationScreen.classList.remove('hidden');
+        // --- Частицы ---
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let w = canvas.parentElement.offsetWidth, h = canvas.parentElement.offsetHeight;
+        canvas.width = w; canvas.height = h;
+        window.addEventListener('resize', () => {
+            w = canvas.parentElement.offsetWidth; h = canvas.parentElement.offsetHeight;
+            canvas.width = w; canvas.height = h;
+        });
+        const particles = Array.from({length: 32}, () => ({
+            x: Math.random()*w, y: Math.random()*h,
+            r: Math.random()*2+1,
+            dx: (Math.random()-0.5)*0.2,
+            dy: (Math.random()-0.5)*0.2,
+            a: Math.random()*2*Math.PI
+        }));
+        function drawParticles() {
+            ctx.clearRect(0,0,w,h);
+            for (const p of particles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, 2*Math.PI);
+                ctx.fillStyle = 'rgba(255,0,0,0.18)';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 8;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                p.x += p.dx; p.y += p.dy;
+                if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+                if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
             }
-        }, 2000);
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
 
-        // Registration
-        registerBtn.addEventListener('click', () => {
-            const phone = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
-            const ffId = document.getElementById('ff-id').value;
-            const password = document.getElementById('password').value;
-            if (phone && email && ffId && password) {
-                const user = {
-                    id: generateUUID(),
-                    telegramId: telegramUser ? telegramUser.id : null,
-                    username: telegramUsername,
-                    phone,
-                    email,
-                    ffId,
-                    password,
-                    diamonds: 0,
-                    taps: 0,
-                    lastTapTime: null,
-                    guildId: null,
-                    level: 1,
-                    experience: 0,
-                    vipUntil: null,
-                    totalTaps: 0,
-                    totalDiamonds: 0,
-                    maxTaps: 100
-                };
-                users.push(user);
-                currentUserId = user.id;
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('currentUserId', currentUserId);
-                showMainMenu();
+        // --- Загрузка ---
+        const progressInner = document.getElementById('progress-inner');
+        const loaderPercent = document.getElementById('loader-percent');
+        const loaderReady = document.getElementById('loader-ready');
+        const loader = document.getElementById('loader');
+        const flash = document.getElementById('flash');
+        const farmingPage = document.getElementById('farming-page');
+        const farmingBtn = document.getElementById('farming-btn');
+        const duration = 7000; // 7 секунд
+        const steps = 140;
+        let currentStep = 0;
+        let progress = 0;
+        let loading = true;
+        function animate() {
+            if (!loading) return;
+            currentStep++;
+            progress = Math.min(1, currentStep / steps);
+            loaderPercent.textContent = Math.floor(progress*100) + '%';
+            progressInner.style.width = (progress * 100) + '%';
+            if (progress < 1) {
+                setTimeout(animate, duration / steps);
             } else {
-                alert('Заполните все поля!');
+                loaderReady.style.display = 'block';
+                loading = false;
             }
-        });
-
-        // Navigation
-        farmBtn.addEventListener('click', () => {
-            mainMenu.classList.add('enter-animation');
-            setTimeout(() => {
-                mainMenu.classList.add('hidden');
-                mainMenu.classList.remove('enter-animation');
-                farmScreen.classList.remove('hidden');
-                updateFarmScreen();
-            }, 500);
-        });
-
-        profileBtn.addEventListener('click', () => {
-            mainMenu.classList.add('enter-animation');
-            setTimeout(() => {
-                mainMenu.classList.add('hidden');
-                mainMenu.classList.remove('enter-animation');
-                profileScreen.classList.remove('hidden');
-                updateProfileScreen();
-            }, 500);
-        });
-
-        notificationsBtn.addEventListener('click', () => {
-            mainMenu.classList.add('enter-animation');
-            setTimeout(() => {
-                mainMenu.classList.add('hidden');
-                mainMenu.classList.remove('enter-animation');
-                notificationsScreen.classList.remove('hidden');
-                notificationsScreen.classList.add('notifications-slide-down');
+        }
+        animate();
+        // Клик для входа
+        loader.addEventListener('click', () => {
+            if (!loading) {
+                flash.style.opacity = 0;
+                flash.classList.remove('hidden');
                 setTimeout(() => {
-                    notificationsScreen.classList.remove('notifications-slide-down');
-                }, 500);
-                updateNotificationsScreen();
-            }, 500);
-        });
-
-        guildBtn.addEventListener('click', () => {
-            mainMenu.classList.add('enter-animation');
-            setTimeout(() => {
-                mainMenu.classList.add('hidden');
-                mainMenu.classList.remove('enter-animation');
-                guildScreen.classList.remove('hidden');
-                updateGuildScreen();
-            }, 500);
-        });
-
-        shopBtn.addEventListener('click', () => {
-            mainMenu.classList.add('enter-animation');
-            setTimeout(() => {
-                mainMenu.classList.add('hidden');
-                mainMenu.classList.remove('enter-animation');
-                shopScreen.classList.remove('hidden');
-                updateShopScreen();
-            }, 500);
-        });
-
-        leaderboardBtn.addEventListener('click', () => {
-            mainMenu.classList.add('enter-animation');
-            setTimeout(() => {
-                mainMenu.classList.add('hidden');
-                mainMenu.classList.remove('enter-animation');
-                leaderboardScreen.classList.remove('hidden');
-                updateLeaderboard();
-            }, 500);
-        });
-
-        adminBtn.addEventListener('click', () => {
-            mainMenu.classList.add('enter-animation');
-            setTimeout(() => {
-                mainMenu.classList.add('hidden');
-                mainMenu.classList.remove('enter-animation');
-                adminPanel.classList.remove('hidden');
-            }, 500);
-        });
-
-        adminUsersBtn.addEventListener('click', () => {
-            adminPanel.classList.add('enter-animation');
-            setTimeout(() => {
-                adminPanel.classList.add('hidden');
-                adminPanel.classList.remove('enter-animation');
-                adminUsersScreen.classList.remove('hidden');
-                updateAdminUsersScreen();
-            }, 500);
-        });
-
-        adminGuildsBtn.addEventListener('click', () => {
-            adminPanel.classList.add('enter-animation');
-            setTimeout(() => {
-                adminPanel.classList.add('hidden');
-                adminPanel.classList.remove('enter-animation');
-                adminGuildsScreen.classList.remove('hidden');
-                updateAdminGuildsScreen();
-            }, 500);
-        });
-
-        // New Admin Navigation
-        document.getElementById('admin-broadcast-btn').addEventListener('click', () => {
-            adminPanel.classList.add('hidden');
-            document.getElementById('admin-broadcast-screen').classList.remove('hidden');
-        });
-
-        document.getElementById('admin-analytics-btn').addEventListener('click', () => {
-            adminPanel.classList.add('hidden');
-            document.getElementById('admin-analytics-screen').classList.remove('hidden');
-            updateAdminAnalytics();
-        });
-
-        document.getElementById('admin-settings-btn').addEventListener('click', () => {
-            adminPanel.classList.add('hidden');
-            document.getElementById('admin-settings-screen').classList.remove('hidden');
-        });
-
-        // Broadcast functionality
-        document.getElementById('broadcast-type').addEventListener('change', (e) => {
-            const levelFilter = document.getElementById('broadcast-level-filter');
-            if (e.target.value === 'level') {
-                levelFilter.classList.remove('hidden');
-            } else {
-                levelFilter.classList.add('hidden');
+                    flash.style.transition = 'opacity 0.5s';
+                    flash.style.opacity = 1;
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                        flash.style.opacity = 0;
+                        setTimeout(() => {
+                            flash.classList.add('hidden');
+                            farmingPage.classList.remove('hidden');
+                        }, 500);
+                    }, 400);
+                }, 10);
             }
         });
-
-        document.getElementById('send-broadcast-btn').addEventListener('click', () => {
-            sendBroadcast();
+        // Клик по кнопке Фарминг (заглушка, переход к фарму реализую далее)
+        farmingBtn.addEventListener('click', () => {
+            alert('Переход к фарму (будет реализовано далее)');
         });
-
-        document.getElementById('preview-broadcast-btn').addEventListener('click', () => {
-            previewBroadcast();
-        });
-
-        // Back buttons
-        document.getElementById('broadcast-back-btn').addEventListener('click', () => {
-            document.getElementById('admin-broadcast-screen').classList.add('hidden');
-            adminPanel.classList.remove('hidden');
-        });
-
-        document.getElementById('analytics-back-btn').addEventListener('click', () => {
-            document.getElementById('admin-analytics-screen').classList.add('hidden');
-            adminPanel.classList.remove('hidden');
-        });
-
-        document.getElementById('settings-back-btn').addEventListener('click', () => {
-            document.getElementById('admin-settings-screen').classList.add('hidden');
-            adminPanel.classList.remove('hidden');
-        });
-
-        backBtn.addEventListener('click', () => {
-            farmScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                farmScreen.classList.add('hidden');
-                farmScreen.classList.remove('exit-animation');
-                showMainMenu();
-            }, 500);
-        });
-
-        profileBackBtn.addEventListener('click', () => {
-            profileScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                profileScreen.classList.add('hidden');
-                profileScreen.classList.remove('exit-animation');
-                showMainMenu();
-            }, 500);
-        });
-
-        notificationsBackBtn.addEventListener('click', () => {
-            notificationsScreen.classList.add('notifications-slide-up');
-            setTimeout(() => {
-                notificationsScreen.classList.add('hidden');
-                notificationsScreen.classList.remove('notifications-slide-up');
-                showMainMenu();
-            }, 500);
-        });
-
-        guildBackBtn.addEventListener('click', () => {
-            guildScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                guildScreen.classList.add('hidden');
-                guildScreen.classList.remove('exit-animation');
-                showMainMenu();
-            }, 500);
-        });
-
-        membersBackBtn.addEventListener('click', () => {
-            guildMembersScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                guildMembersScreen.classList.add('hidden');
-                guildMembersScreen.classList.remove('exit-animation');
-                guildScreen.classList.remove('hidden');
-                updateGuildScreen();
-            }, 500);
-        });
-
-        requestsBackBtn.addEventListener('click', () => {
-            guildRequestsScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                guildRequestsScreen.classList.add('hidden');
-                guildRequestsScreen.classList.remove('exit-animation');
-                guildScreen.classList.remove('hidden');
-                updateGuildScreen();
-            }, 500);
-        });
-
-        // Shop Navigation
-        document.getElementById('shop-back-btn').addEventListener('click', () => {
-            shopScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                shopScreen.classList.add('hidden');
-                shopScreen.classList.remove('exit-animation');
-                showMainMenu();
-            }, 500);
-        });
-
-        // Leaderboard Navigation
-        document.getElementById('leaderboard-back-btn').addEventListener('click', () => {
-            leaderboardScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                leaderboardScreen.classList.add('hidden');
-                leaderboardScreen.classList.remove('exit-animation');
-                showMainMenu();
-            }, 500);
-        });
-
-        // Leaderboard Tabs
-        document.getElementById('players-tab').addEventListener('click', () => {
-            document.getElementById('players-tab').classList.add('active-tab');
-            document.getElementById('players-leaderboard').classList.remove('hidden');
-        });
-
-        adminBackBtn.addEventListener('click', () => {
-            adminPanel.classList.add('exit-animation');
-            setTimeout(() => {
-                adminPanel.classList.add('hidden');
-                adminPanel.classList.remove('exit-animation');
-                showMainMenu();
-            }, 500);
-        });
-
-        adminUsersBackBtn.addEventListener('click', () => {
-            adminUsersScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                adminUsersScreen.classList.add('hidden');
-                adminUsersScreen.classList.remove('exit-animation');
-                adminPanel.classList.remove('hidden');
-            }, 500);
-        });
-
-        adminGuildsBackBtn.addEventListener('click', () => {
-            adminGuildsScreen.classList.add('exit-animation');
-            setTimeout(() => {
-                adminGuildsScreen.classList.add('hidden');
-                adminGuildsScreen.classList.remove('exit-animation');
-                adminPanel.classList.remove('hidden');
-            }, 500);
-        });
-
-        // Delete Account
-        deleteAccountBtn.addEventListener('click', () => {
-            if (confirm('Вы уверены, что хотите удалить аккаунт?')) {
-                const user = users.find(u => u.id === currentUserId);
-                if (user.guildId) {
-                    const guild = guilds.find(g => g.id === user.guildId);
-                    if (guild.leaderId === currentUserId) {
-                        guilds = guilds.filter(g => g.id !== user.guildId);
-                        users.forEach(u => {
-                            if (u.guildId === user.guildId && u.id !== currentUserId) {
-                                u.guildId = null;
-                                notifications.push({
-                                    id: generateUUID(),
-                                    userId: u.id,
-                                    message: `Гильдия ${guild.name} распущена лидером`,
-                                    timestamp: new Date().toLocaleString()
-                                });
-                            }
-                        });
-                    } else {
-                        guild.members = guild.members.filter(m => m !== currentUserId);
-                        guild.requests = guild.requests.filter(r => r !== currentUserId);
-                    }
-                }
-                users = users.filter(u => u.id !== currentUserId);
-                notifications = notifications.filter(n => n.userId !== currentUserId);
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('guilds', JSON.stringify(guilds));
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                localStorage.removeItem('currentUserId');
-                currentUserId = null;
-                loadingScreen.classList.remove('hidden');
-                mainMenu.classList.add('hidden');
-                profileScreen.classList.add('hidden');
-                setTimeout(() => {
-                    loadingScreen.classList.add('hidden');
-                    registrationScreen.classList.remove('hidden');
-                }, 1000);
-            }
-        });
-
-        // Shop Logic
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('buy-booster-btn')) {
-                const type = e.target.getAttribute('data-type');
-                const price = parseFloat(e.target.getAttribute('data-price'));
-                const currency = e.target.getAttribute('data-currency');
-                buyBooster(type, price, currency);
-            }
-            if (e.target.classList.contains('buy-premium-btn')) {
-                const type = e.target.getAttribute('data-type');
-                const price = parseFloat(e.target.getAttribute('data-price'));
-                const currency = e.target.getAttribute('data-currency');
-                buyPremium(type, price, currency);
-            }
-        });
-
-        // Support Project Button
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'support-project-btn') {
-                showSupportProjectPanel();
-            }
-            if (e.target.id === 'withdraw-diamonds-btn') {
-                showDevelopmentPanel();
-            }
-        });
-
-        // Farming Logic
-        tapBtn.addEventListener('click', () => {
-            const user = users.find(u => u.id === currentUserId);
-            const now = Date.now();
-
-            // Reset taps if cooldown period passed
-            if (!user.lastTapTime || now - user.lastTapTime >= 4 * 60 * 60 * 1000) {
-                user.taps = 0;
-                user.lastTapTime = now;
-            }
-
-            // Check if user has taps remaining
-            if (user.taps < user.maxTaps) {
-                user.taps++;
-                user.totalTaps++;
-                
-                let diamondGain = 0.0001;
-                
-                // Apply boosters
-                const userBoosters = activeBoosters[currentUserId] || {};
-                if (userBoosters.diamonds && userBoosters.diamonds > now) {
-                    diamondGain *= 3;
-                }
-                if (userBoosters.mega && userBoosters.mega > now) {
-                    diamondGain *= 5;
-                }
-                
-                // VIP bonus
-                if (user.vipUntil && user.vipUntil > now) {
-                    diamondGain *= 2;
-                }
-                
-                user.diamonds += diamondGain;
-                user.totalDiamonds += diamondGain;
-                user.experience += 1;
-                
-                // Level up check
-                const newLevel = Math.floor(user.experience / 100) + 1;
-                if (newLevel > user.level) {
-                    const oldMaxTaps = user.maxTaps;
-                    user.level = newLevel;
-                    user.maxTaps = 100 + (newLevel - 1) * 25; // Увеличиваем тапы с уровнем
-                    const tapIncrease = user.maxTaps - oldMaxTaps;
-                    
-                    notifications.push({
-                        id: generateUUID(),
-                        userId: currentUserId,
-                        message: `🎉 Поздравляем! Уровень ${newLevel}! Тапов: +${tapIncrease} (${user.maxTaps} всего)`,
-                        timestamp: new Date().toLocaleString(),
-                        read: false
-                    });
-                }
-                
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                updateFarmScreen();
-                updateDiamondBalance();
-                updateNotificationBadge();
-            } else {
-                tapBtn.disabled = true;
-                cooldown.classList.remove('hidden');
-                startCooldown();
-            }
-        });
-
-        // Notifications Logic
-        clearNotificationsBtn.addEventListener('click', () => {
-            if (confirm('Вы уверены, что хотите очистить все уведомления?')) {
-                notifications = notifications.filter(n => n.userId !== currentUserId);
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                updateNotificationsScreen();
-                updateNotificationBadge();
-            }
-        });
-
-        // Guild Logic
-        createGuildBtn.addEventListener('click', () => {
-            const user = users.find(u => u.id === currentUserId);
-            const guildName = guildNameInput.value.trim();
-            if (!guildName) {
-                alert('Введите название гильдии!');
-                return;
-            }
-            if (user.diamonds < 10) {
-                alert('Недостаточно алмазов! Нужно 10 💎');
-                return;
-            }
-            if (user.guildId) {
-                alert('Вы уже состоите в гильдии!');
-                return;
-            }
-            user.diamonds -= 10;
-            user.guildId = generateUUID();
-            const newGuild = {
-                id: user.guildId,
-                name: guildName,
-                leaderId: currentUserId,
-                members: [currentUserId],
-                requests: []
-            };
-            guilds.push(newGuild);
-            localStorage.setItem('users', JSON.stringify(users));
-            localStorage.setItem('guilds', JSON.stringify(guilds));
-            updateGuildScreen();
-            updateDiamondBalance();
-            alert('Гильдия создана!');
-        });
-
-        joinGuildBtn.addEventListener('click', () => {
-            const user = users.find(u => u.id === currentUserId);
-            const selectedGuildId = guildSelect.value;
-            if (!selectedGuildId) {
-                alert('Выберите гильдию!');
-                return;
-            }
-            if (user.guildId) {
-                alert('Вы уже состоите в гильдии!');
-                return;
-            }
-            const guild = guilds.find(g => g.id === selectedGuildId);
-            if (!guild.requests.includes(currentUserId)) {
-                guild.requests.push(currentUserId);
-                notifications.push({
-                    id: generateUUID(),
-                    userId: guild.leaderId,
-                    message: `Новая заявка на вступление от ${user.username}`,
-                    timestamp: new Date().toLocaleString()
-                });
-                localStorage.setItem('guilds', JSON.stringify(guilds));
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                alert('Заявка отправлена лидеру гильдии!');
-            } else {
-                alert('Заявка уже отправлена!');
-            }
-            updateGuildScreen();
-            updateNotificationBadge();
-        });
-
-        guildMembersBtn.addEventListener('click', () => {
-            guildScreen.classList.add('hidden');
-            guildMembersScreen.classList.remove('hidden');
-            updateGuildMembersScreen();
-        });
-
-        leaveGuildBtn.addEventListener('click', () => {
-            if (confirm('Вы уверены, что хотите покинуть гильдию?')) {
-                const user = users.find(u => u.id === currentUserId);
-                const guild = guilds.find(g => g.id === user.guildId);
-                guild.members = guild.members.filter(m => m !== currentUserId);
-                guild.requests = guild.requests.filter(r => r !== currentUserId);
-                user.guildId = null;
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('guilds', JSON.stringify(guilds));
-                updateGuildScreen();
-                alert('Вы покинули гильдию!');
-            }
-        });
-
-        disbandGuildBtn.addEventListener('click', () => {
-            if (confirm('Вы уверены, что хотите распустить гильдию?')) {
-                const user = users.find(u => u.id === currentUserId);
-                const guild = guilds.find(g => g.id === user.guildId);
-                users.forEach(u => {
-                    if (u.guildId === guild.id && u.id !== currentUserId) {
-                        u.guildId = null;
-                        notifications.push({
-                            id: generateUUID(),
-                            userId: u.id,
-                            message: `Гильдия ${guild.name} распущена лидером`,
-                            timestamp: new Date().toLocaleString()
-                        });
-                    }
-                });
-                guilds = guilds.filter(g => g.id !== guild.id);
-                user.guildId = null;
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('guilds', JSON.stringify(guilds));
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                updateGuildScreen();
-                updateNotificationBadge();
-                alert('Гильдия распущена!');
-            }
-        });
-
-        guildRequestsBtn.addEventListener('click', () => {
-            guildScreen.classList.add('hidden');
-            guildRequestsScreen.classList.remove('hidden');
-            updateGuildRequestsScreen();
-        });
-
-        // Admin Users Logic
-        userSelect.addEventListener('change', () => {
-            const selectedUserId = userSelect.value;
-            const user = users.find(u => u.id === selectedUserId);
-            if (user) {
-                adminUsername.value = user.username;
-                adminPhone.value = user.phone;
-                adminEmail.value = user.email;
-                adminFfId.value = user.ffId;
-                adminPassword.value = user.password;
-                adminDiamonds.value = user.diamonds.toFixed(4);
-            }
-        });
-
-        saveUserBtn.addEventListener('click', () => {
-            const selectedUserId = userSelect.value;
-            const user = users.find(u => u.id === selectedUserId);
-            if (user) {
-                const newPhone = adminPhone.value;
-                const newEmail = adminEmail.value;
-                const newFfId = adminFfId.value;
-                const newPassword = adminPassword.value;
-                const newDiamonds = parseFloat(adminDiamonds.value);
-                if (newPhone && newEmail && newFfId && newPassword && !isNaN(newDiamonds) && newDiamonds >= 0) {
-                    user.phone = newPhone;
-                    user.email = newEmail;
-                    user.ffId = newFfId;
-                    user.password = newPassword;
-                    user.diamonds = newDiamonds;
-                    localStorage.setItem('users', JSON.stringify(users));
-                    alert('Данные пользователя обновлены!');
-                    if (selectedUserId === currentUserId) {
-                        updateDiamondBalance();
-                        updateFarmScreen();
-                        updateProfileScreen();
-                    }
-                } else {
-                    alert('Заполните все поля корректно!');
-                }
-            }
-        });
-
-        // Admin Guilds Logic
-        guildSelectAdmin.addEventListener('change', () => {
-            updateAdminGuildsScreen();
-        });
-
-        saveGuildBtn.addEventListener('click', () => {
-            const selectedGuildId = guildSelectAdmin.value;
-            const guild = guilds.find(g => g.id === selectedGuildId);
-            if (guild) {
-                const newName = adminGuildName.value.trim();
-                const newLeaderId = adminGuildLeader.value;
-                if (!newName) {
-                    alert('Введите название гильдии!');
-                    return;
-                }
-                if (!newLeaderId) {
-                    alert('Выберите лидера!');
-                    return;
-                }
-                guild.name = newName;
-                if (guild.leaderId !== newLeaderId) {
-                    if (!guild.members.includes(newLeaderId)) {
-                        alert('Новый лидер должен быть участником гильдии!');
-                        return;
-                    }
-                    guild.leaderId = newLeaderId;
-                    notifications.push({
-                        id: generateUUID(),
-                        userId: newLeaderId,
-                        message: `Вы назначены лидером гильдии ${guild.name}`,
-                        timestamp: new Date().toLocaleString()
-                    });
-                    localStorage.setItem('notifications', JSON.stringify(notifications));
-                    updateNotificationBadge();
-                }
-                localStorage.setItem('guilds', JSON.stringify(guilds));
-                alert('Данные гильдии обновлены!');
-                updateAdminGuildsScreen();
-            }
-        });
-
-        deleteGuildBtn.addEventListener('click', () => {
-            const selectedGuildId = guildSelectAdmin.value;
-            if (!selectedGuildId) {
-                alert('Выберите гильдию!');
-                return;
-            }
-            if (confirm('Вы уверены, что хотите удалить гильдию?')) {
-                const guild = guilds.find(g => g.id === selectedGuildId);
-                users.forEach(u => {
-                    if (u.guildId === guild.id) {
-                        u.guildId = null;
-                        notifications.push({
-                            id: generateUUID(),
-                            userId: u.id,
-                            message: `Гильдия ${guild.name} удалена администратором`,
-                            timestamp: new Date().toLocaleString()
-                        });
-                    }
-                });
-                guilds = guilds.filter(g => g.id !== selectedGuildId);
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('guilds', JSON.stringify(guilds));
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                updateAdminGuildsScreen();
-                updateNotificationBadge();
-                alert('Гильдия удалена!');
-            }
-        });
-
-        clearDbBtn.addEventListener('click', () => {
-            if (confirm('Вы уверены, что хотите очистить базу данных? Все пользователи и гильдии будут удалены!')) {
-                users = [];
-                guilds = [];
-                notifications = [];
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('guilds', JSON.stringify(guilds));
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                localStorage.removeItem('currentUserId');
-                currentUserId = null;
-                loadingScreen.classList.remove('hidden');
-                adminPanel.classList.add('hidden');
-                setTimeout(() => {
-                    loadingScreen.classList.add('hidden');
-                    registrationScreen.classList.remove('hidden');
-                }, 1000);
-            }
-        });
-
-        // Payment functions
-        function buyBooster(type, price, currency) {
-            showDevelopmentPanel();
-        }
-
-        function buyPremium(type, price, currency) {
-            showDevelopmentPanel();
-        }
-
-        // Панель "В разработке"
-        function showDevelopmentPanel() {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            modal.innerHTML = `
-                <div class="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
-                    <div class="text-center mb-4">
-                        <div class="text-6xl mb-4">🔧</div>
-                        <h3 class="text-xl font-bold mb-2">В разработке</h3>
-                        <p class="text-gray-300 text-sm">Эта функция находится в разработке</p>
-                    </div>
-                    <button onclick="closeDevelopmentModal()" 
-                            class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
-                        Понятно
-                    </button>
-                </div>
-            `;
-            modal.id = 'development-modal';
-            document.body.appendChild(modal);
-        }
-
-        function closeDevelopmentModal() {
-            const modal = document.getElementById('development-modal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-
-        // Панель поддержки проекта
-        function showSupportProjectPanel() {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            modal.innerHTML = `
-                <div class="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
-                    <div class="text-center mb-4">
-                        <div class="text-6xl mb-4">❤️</div>
-                        <h3 class="text-xl font-bold mb-2">Поддержать проект</h3>
-                        <p class="text-gray-300 text-sm mb-4">Поддержите развитие проекта</p>
-                    </div>
-                    
-                    <div class="bg-gray-700 p-3 rounded mb-4">
-                        <p class="text-sm text-center mb-2">TON адрес для поддержки:</p>
-                        <p class="text-xs text-center text-gray-300 break-all">UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC</p>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <button onclick="openTelegramWallet()" 
-                                class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
-                            💎 Поддержать через Telegram Wallet
-                        </button>
-                        
-                        <button onclick="copyTonAddress()" 
-                                class="w-full p-3 bg-green-600 rounded hover:bg-green-700">
-                            📋 Скопировать адрес
-                        </button>
-                        
-                        <button onclick="closeSupportModal()" 
-                                class="w-full p-3 bg-gray-600 rounded hover:bg-gray-700">
-                            ❌ Отмена
-                        </button>
-                    </div>
-                </div>
-            `;
-            modal.id = 'support-modal';
-            document.body.appendChild(modal);
-        }
-
-        function closeSupportModal() {
-            const modal = document.getElementById('support-modal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-
-        function openTelegramWallet() {
-            try {
-                if (window.Telegram?.WebApp) {
-                    // Открываем Telegram Wallet через WebApp
-                    window.Telegram.WebApp.openTelegramLink('https://t.me/wallet/start?startapp=walletnews');
-                } else {
-                    // Альтернатива - открываем в новой вкладке
-                    window.open('https://t.me/wallet/start?startapp=walletnews', '_blank');
-                }
-            } catch (error) {
-                console.error('Error opening Telegram Wallet:', error);
-                window.open('https://t.me/wallet/start?startapp=walletnews', '_blank');
-            }
-        }
-
-        function copyTonAddress() {
-            const address = 'UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC';
-            navigator.clipboard.writeText(address).then(() => {
-                alert('TON адрес скопирован в буфер обмена!');
-            }).catch(() => {
-                // Fallback для старых браузеров
-                const textArea = document.createElement('textarea');
-                textArea.value = address;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                alert('TON адрес скопирован в буфер обмена!');
-            });
-        }
-
-        // TON Payment через Telegram
-        function initTonPayment(itemType, price, category) {
-            try {
-                hideLoadingPayment();
-                
-                if (!window.Telegram?.WebApp) {
-                    throw new Error('Telegram WebApp API недоступен');
-                }
-
-                const webApp = window.Telegram.WebApp;
-                
-                if (!webApp.openInvoice) {
-                    throw new Error('openInvoice не поддерживается');
-                }
-
-                // Создаем инвойс для TON (через Stars как валюту)
-                const invoice = {
-                    title: category === 'booster' ? `� ${getBoosterName(itemType)}` : '👑 VIP Статус',
-                    description: category === 'booster' ? 
-                        `Покупка бустера: ${getBoosterName(itemType)}` : 
-                        'Премиум подписка на 30 дней с эксклюзивными бонусами',
-                    payload: `ton_${category}_${itemType}_${currentUserId}_${Date.now()}`,
-                    provider_token: '', // Пустой для Stars
-                    currency: 'XTR',
-                    prices: [{
-                        label: category === 'booster' ? getBoosterName(itemType) : 'VIP на 30 дней',
-                        amount: Math.floor(price * 100) // TON конвертируем в Stars для демо
-                    }],
-                    need_name: false,
-                    need_phone_number: false,
-                    need_email: false,
-                    need_shipping_address: false,
-                    send_phone_number_to_provider: false,
-                    send_email_to_provider: false,
-                    is_flexible: false
-                };
-
-                console.log('Creating TON invoice:', invoice);
-
-                // Открываем инвойс
-                webApp.openInvoice(invoice, (status) => {
-                    console.log('TON Payment callback status:', status);
-                    handlePaymentResult(status, itemType, category);
-                });
-
-            } catch (error) {
-                console.error('TON payment error:', error);
-                hideLoadingPayment();
-                
-                // Показываем альтернативные варианты
-                showTonPaymentDialog(itemType, category, price);
-            }
-        }
-
-        // Telegram Stars Payment
-        function initStarsPayment(itemType, price, category) {
-            try {
-                hideLoadingPayment();
-                
-                if (!window.Telegram?.WebApp) {
-                    throw new Error('Telegram WebApp API недоступен');
-                }
-
-                const webApp = window.Telegram.WebApp;
-                
-                // Проверяем поддержку Stars
-                if (!webApp.openInvoice) {
-                    throw new Error('openInvoice не поддерживается');
-                }
-
-                // Создаем правильный инвойс для Telegram Stars
-                const invoice = {
-                    title: `⭐ ${getBoosterName(itemType)}`,
-                    description: `Покупка бустера за ${price} Telegram Stars`,
-                    payload: `stars_${category}_${itemType}_${currentUserId}_${Date.now()}`,
-                    provider_token: '', // Обязательно пустой для Stars
-                    currency: 'XTR',
-                    prices: [{
-                        label: getBoosterName(itemType),
-                        amount: price
-                    }],
-                    need_name: false,
-                    need_phone_number: false,
-                    need_email: false,
-                    need_shipping_address: false,
-                    send_phone_number_to_provider: false,
-                    send_email_to_provider: false,
-                    is_flexible: false
-                };
-
-                console.log('Creating Stars invoice:', invoice);
-
-                // Открываем инвойс для оплаты звездами
-                webApp.openInvoice(invoice, (status) => {
-                    console.log('Payment callback status:', status);
-                    handlePaymentResult(status, itemType, category);
-                });
-
-            } catch (error) {
-                console.error('Stars payment error:', error);
-                hideLoadingPayment();
-                
-                // Показываем альтернативные варианты
-                showStarsPaymentDialog(itemType, category, price);
-            }
-        }
-
-        // URL generators for invoices
-        function createTelegramInvoice(invoiceData) {
-            // Создаем правильный инвойс URL для Telegram
-            const baseParams = {
-                title: invoiceData.title,
-                description: invoiceData.description,
-                payload: invoiceData.payload,
-                currency: invoiceData.currency,
-                prices: JSON.stringify(invoiceData.prices)
-            };
-            
-            if (invoiceData.start_parameter) {
-                baseParams.start_parameter = invoiceData.start_parameter;
-            }
-            
-            const params = new URLSearchParams(baseParams);
-            return `https://t.me/$YourBotName?${params.toString()}`;
-        }
-
-        // Диалог для оплаты Stars
-        function showStarsPaymentDialog(itemType, category, price) {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            modal.innerHTML = `
-                <div class="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
-                    <h3 class="text-xl font-bold mb-4 text-center">⭐ Оплата Stars</h3>
-                    <p class="text-center mb-4">${getBoosterName(itemType)}</p>
-                    <p class="text-center mb-6 text-gray-300">Цена: ${price} ⭐ Telegram Stars</p>
-                    
-                    <div class="bg-yellow-800 p-3 rounded mb-4">
-                        <p class="text-sm text-center">🔧 Для настройки реальных платежей создайте Telegram бота и следуйте инструкции в PAYMENT_SETUP.md</p>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <button onclick="testStarsPayment('${itemType}', '${category}', ${price})" 
-                                class="w-full p-3 bg-yellow-600 rounded hover:bg-yellow-700">
-                            ⭐ Тест Stars API
-                        </button>
-                        
-                        <button onclick="simulatePaymentFromModal('${itemType}', '${category}')" 
-                                class="w-full p-3 bg-green-600 rounded hover:bg-green-700">
-                            ✅ Демо покупка (бесплатно)
-                        </button>
-                        
-                        <button onclick="window.open('https://core.telegram.org/bots/payments#stars', '_blank')" 
-                                class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
-                            📖 Как настроить Stars
-                        </button>
-                        
-                        <button onclick="closePaymentModal()" 
-                                class="w-full p-3 bg-gray-600 rounded hover:bg-gray-700">
-                            ❌ Отмена
-                        </button>
-                    </div>
-                </div>
-            `;
-            modal.id = 'payment-modal';
-            document.body.appendChild(modal);
-        }
-
-        // Диалог для оплаты TON
-        function showTonPaymentDialog(itemType, category, price, tonWalletAddress = 'UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC') {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            modal.innerHTML = `
-                <div class="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
-                    <h3 class="text-xl font-bold mb-4 text-center">💎 Оплата TON</h3>
-                    <p class="text-center mb-4">${category === 'booster' ? getBoosterName(itemType) : 'VIP Статус'}</p>
-                    <p class="text-center mb-6 text-gray-300">Цена: ${price} TON</p>
-                    
-                    <div class="bg-blue-800 p-3 rounded mb-4">
-                        <p class="text-sm text-center">💼 Адрес кошелька:</p>
-                        <p class="text-xs text-center break-all">${tonWalletAddress}</p>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <button onclick="openTelegramWallet('${itemType}', '${category}', ${price})" 
-                                class="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
-                            💳 Открыть Telegram кошелек
-                        </button>
-                        
-                        <button onclick="copyWalletAddress('${tonWalletAddress}')" 
-                                class="w-full p-3 bg-purple-600 rounded hover:bg-purple-700">
-                            📋 Скопировать адрес
-                        </button>
-                        
-                        <button onclick="simulatePaymentFromModal('${itemType}', '${category}')" 
-                                class="w-full p-3 bg-green-600 rounded hover:bg-green-700">
-                            ✅ Демо покупка (бесплатно)
-                        </button>
-                        
-                        <button onclick="closePaymentModal()" 
-                                class="w-full p-3 bg-gray-600 rounded hover:bg-gray-700">
-                            ❌ Отмена
-                        </button>
-                    </div>
-                </div>
-            `;
-            modal.id = 'payment-modal';
-            document.body.appendChild(modal);
-        }
-
-        // Функции для модального окна оплаты
-        window.simulatePaymentFromModal = function(itemType, category) {
-            closePaymentModal();
-            if (category === 'booster') {
-                applyBooster(itemType);
-            } else if (category === 'premium') {
-                applyPremium(itemType);
-            }
-            
-            // Добавляем покупку в список недавних (случайная валюта для демо)
-            const currencies = ['TON', '⭐'];
-            const randomCurrency = currencies[Math.floor(Math.random() * currencies.length)];
-            const demoPrice = randomCurrency === 'TON' ? '0.0' : '0';
-            addRecentPurchase(getBoosterName(itemType), demoPrice, randomCurrency);
-            
-            showSuccessMessage('Демо покупка успешна! Товар активирован.');
-        };
-
-        window.testStarsPayment = function(itemType, category, price) {
-            closePaymentModal();
-            
-            // Показываем загрузку
-            showLoadingPayment();
-            
-            // Имитируем реальный API вызов
-            setTimeout(() => {
-                hideLoadingPayment();
-                
-                if (window.Telegram?.WebApp?.openInvoice) {
-                    showErrorMessage('⚠️ Для реальных платежей нужен настроенный бот с платежным провайдером');
-                } else {
-                    showErrorMessage('❌ Telegram WebApp API недоступен (откройте в Telegram)');
-                }
-                
-                // Предлагаем демо
-                setTimeout(() => {
-                    if (confirm('Активировать товар в демо режиме?')) {
-                        if (category === 'booster') {
-                            applyBooster(itemType);
-                        } else if (category === 'premium') {
-                            applyPremium(itemType);
-                        }
-                        
-                        // Добавляем покупку в список недавних
-                        addRecentPurchase(getBoosterName(itemType), price, '⭐');
-                        
-                        showSuccessMessage('🎮 Демо активация успешна!');
-                    }
-                }, 2000);
-            }, 1500);
-        };
-
-        window.closePaymentModal = function() {
-            const modal = document.getElementById('payment-modal');
-            if (modal) {
-                modal.remove();
-            }
-        };
-
-        // Функция для открытия Telegram кошелька
-        window.openTelegramWallet = function(itemType, category, price) {
-            const tonWalletAddress = 'UQC0qtm_kHr2JL_edA9SMpbHAE-2BFf-D4g0kzelc5IviWbC';
-            const comment = `${category}_${itemType}_${currentUserId}`;
-            const amount = price * 1000000000; // Конвертируем в nanotons
-            
-            try {
-                // Пытаемся открыть через Telegram WebApp
-                if (window.Telegram?.WebApp?.openTelegramLink) {
-                    const walletUrl = `https://t.me/wallet?startattach=wpay_order-orderId__${Date.now()}`;
-                    window.Telegram.WebApp.openTelegramLink(walletUrl);
-                } else {
-                    // Альтернативный способ - прямая ссылка на кошелек
-                    const tonUrl = `ton://transfer/${tonWalletAddress}?amount=${amount}&text=${encodeURIComponent(comment)}`;
-                    window.open(tonUrl, '_blank');
-                }
-                
-                closePaymentModal();
-                showSuccessMessage('Открываем Telegram кошелек...');
-                
-                // Добавляем покупку в список недавних
-                addRecentPurchase(getBoosterName(itemType), price, 'TON');
-                
-            } catch (error) {
-                console.error('Error opening wallet:', error);
-                showErrorMessage('Ошибка открытия кошелька');
-            }
-        };
-
-        // Функция для копирования адреса кошелька
-        window.copyWalletAddress = function(address) {
-            navigator.clipboard.writeText(address).then(() => {
-                showSuccessMessage('Адрес кошелька скопирован!');
-            }).catch(() => {
-                showErrorMessage('Ошибка копирования адреса');
-            });
-        };
-
-        // Helper functions for payments
-        function getBoosterName(type) {
-            const names = {
-                speed: 'Ускорение тапов x2',
-                diamonds: 'Утроенные алмазы x3',
-                taps: 'Дополнительные тапы +50',
-                mega: 'Мега буст x5'
-            };
-            return names[type] || type;
-        }
-
-        // Loading and UI functions
-        function showLoadingPayment() {
-            const loading = document.createElement('div');
-            loading.id = 'payment-loading';
-            loading.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            loading.innerHTML = `
-                <div class="bg-gray-800 p-6 rounded-lg text-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 mx-auto mb-4"></div>
-                    <p class="text-white">Подготовка платежа...</p>
-                </div>
-            `;
-            document.body.appendChild(loading);
-        }
-
-        function hideLoadingPayment() {
-            const loading = document.getElementById('payment-loading');
-            if (loading) {
-                loading.remove();
-            }
-        }
-
-        function handlePaymentResult(status, itemType, category) {
-            switch(status) {
-                case 'paid':
-                    if (category === 'booster') {
-                        applyBooster(itemType);
-                    } else if (category === 'premium') {
-                        applyPremium(itemType);
-                    }
-                    showSuccessMessage('Платеж успешно выполнен!');
-                    break;
-                case 'cancelled':
-                    showErrorMessage('Платеж отменен');
-                    break;
-                case 'failed':
-                    showErrorMessage('Ошибка при выполнении платежа');
-                    break;
-                default:
-                    showErrorMessage('Неизвестный статус платежа');
-            }
-        }
-
-        // Симуляция платежа для тестирования
-        function simulatePayment(itemType, category) {
-            if (confirm(`Симуляция платежа. Активировать ${getBoosterName(itemType)}?`)) {
-                if (category === 'booster') {
-                    applyBooster(itemType);
-                } else if (category === 'premium') {
-                    applyPremium(itemType);
-                }
-                showSuccessMessage('Платеж симулирован успешно!');
-            }
-        }
-
-        function showSuccessMessage(message) {
-            // Создаем красивое уведомление
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function showErrorMessage(message) {
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function applyBooster(type) {
-            const user = users.find(u => u.id === currentUserId);
-            const now = Date.now();
-            
-            if (!activeBoosters[currentUserId]) {
-                activeBoosters[currentUserId] = {};
-            }
-            
-            switch (type) {
-                case 'speed':
-                    activeBoosters[currentUserId].speed = now + (30 * 60 * 1000); // 30 minutes
-                    break;
-                case 'diamonds':
-                    activeBoosters[currentUserId].diamonds = now + (60 * 60 * 1000); // 1 hour
-                    break;
-                case 'taps':
-                    user.taps = Math.max(0, user.taps - 50); // Восстанавливаем 50 тапов
-                    break;
-                case 'mega':
-                    activeBoosters[currentUserId].mega = now + (2 * 60 * 60 * 1000); // 2 hours
-                    break;
-            }
-            
-            localStorage.setItem('users', JSON.stringify(users));
-            localStorage.setItem('activeBoosters', JSON.stringify(activeBoosters));
-            updateFarmScreen();
-        }
-
-        function applyPremium(type) {
-            const user = users.find(u => u.id === currentUserId);
-            const now = Date.now();
-            
-            if (type === 'vip') {
-                user.vipUntil = now + (30 * 24 * 60 * 60 * 1000); // 30 days
-                user.maxTaps += 100; // Увеличиваем максимальные тапы
-            }
-            
-            localStorage.setItem('users', JSON.stringify(users));
-            updateProfileScreen();
-            updateFarmScreen();
-        }
-
-        function generateInvoiceId() {
-            return `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        }
-
-        // Admin Functions
-        function sendBroadcast() {
-            const type = document.getElementById('broadcast-type').value;
-            const title = document.getElementById('broadcast-title').value.trim();
-            const message = document.getElementById('broadcast-message').value.trim();
-            const minLevel = parseInt(document.getElementById('broadcast-min-level').value) || 1;
-            
-            if (!title || !message) {
-                alert('Заполните заголовок и сообщение!');
-                return;
-            }
-            
-            let targetUsers = [];
-            const now = Date.now();
-            
-            switch (type) {
-                case 'all':
-                    targetUsers = users;
-                    break;
-                case 'vip':
-                    targetUsers = users.filter(u => u.vipUntil && u.vipUntil > now);
-                    break;
-                case 'level':
-                    targetUsers = users.filter(u => u.level >= minLevel);
-                    break;
-                case 'guild':
-                    targetUsers = users.filter(u => u.guildId);
-                    break;
-            }
-            
-            const notification = {
-                id: generateUUID(),
-                message: `📢 ${title}: ${message}`,
-                timestamp: new Date().toLocaleString(),
-                read: false
-            };
-            
-            targetUsers.forEach(user => {
-                notifications.push({
-                    ...notification,
-                    id: generateUUID(),
-                    userId: user.id
-                });
-            });
-            
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-            updateNotificationBadge();
-            
-            // Clear form
-            document.getElementById('broadcast-title').value = '';
-            document.getElementById('broadcast-message').value = '';
-            
-            showSuccessMessage(`Рассылка отправлена ${targetUsers.length} пользователям!`);
-        }
-
-        function previewBroadcast() {
-            const type = document.getElementById('broadcast-type').value;
-            const title = document.getElementById('broadcast-title').value.trim();
-            const message = document.getElementById('broadcast-message').value.trim();
-            const minLevel = parseInt(document.getElementById('broadcast-min-level').value) || 1;
-            
-            let targetCount = 0;
-            const now = Date.now();
-            
-            switch (type) {
-                case 'all':
-                    targetCount = users.length;
-                    break;
-                case 'vip':
-                    targetCount = users.filter(u => u.vipUntil && u.vipUntil > now).length;
-                    break;
-                case 'level':
-                    targetCount = users.filter(u => u.level >= minLevel).length;
-                    break;
-                case 'guild':
-                    targetCount = users.filter(u => u.guildId).length;
-                    break;
-            }
-            
-            alert(`Превью рассылки:\n\nЗаголовок: ${title}\nСообщение: ${message}\n\nПолучателей: ${targetCount}`);
-        }
-
-        function updateAdminAnalytics() {
-            const now = Date.now();
-            
-            // Diamonds analytics
-            const totalDiamonds = users.reduce((sum, u) => sum + u.totalDiamonds, 0);
-            const avgDiamonds = users.length > 0 ? totalDiamonds / users.length : 0;
-            const maxDiamonds = Math.max(...users.map(u => u.totalDiamonds));
-            
-            document.getElementById('total-diamonds').textContent = totalDiamonds.toFixed(4);
-            document.getElementById('avg-diamonds').textContent = avgDiamonds.toFixed(4);
-            document.getElementById('max-diamonds').textContent = maxDiamonds.toFixed(4);
-            
-            // Activity analytics
-            const totalTaps = users.reduce((sum, u) => sum + u.totalTaps, 0);
-            const avgTaps = users.length > 0 ? Math.round(totalTaps / users.length) : 0;
-            const activeToday = users.filter(u => u.lastTapTime && now - u.lastTapTime < 24 * 60 * 60 * 1000).length;
-            
-            document.getElementById('total-taps').textContent = totalTaps.toLocaleString();
-            document.getElementById('avg-taps').textContent = avgTaps.toLocaleString();
-            document.getElementById('active-today').textContent = activeToday;
-            
-            // Level distribution
-            const levelDistribution = {};
-            users.forEach(u => {
-                levelDistribution[u.level] = (levelDistribution[u.level] || 0) + 1;
-            });
-            
-            const levelDiv = document.getElementById('level-distribution');
-            levelDiv.innerHTML = '';
-            Object.keys(levelDistribution).sort((a, b) => parseInt(b) - parseInt(a)).forEach(level => {
-                const div = document.createElement('div');
-                div.textContent = `Уровень ${level}: ${levelDistribution[level]} игроков`;
-                levelDiv.appendChild(div);
-            });
-        }
-
-        function updateAdminStats() {
-            const now = Date.now();
-            const vipCount = users.filter(u => u.vipUntil && u.vipUntil > now).length;
-            const onlineCount = users.filter(u => u.lastTapTime && now - u.lastTapTime < 30 * 60 * 1000).length;
-            
-            document.getElementById('admin-users-count').textContent = users.length;
-            document.getElementById('admin-guilds-count').textContent = guilds.length;
-            document.getElementById('admin-online-count').textContent = onlineCount;
-            document.getElementById('admin-vip-count').textContent = vipCount;
-        }
-
-        function showMainMenu() {
-            loadingScreen.classList.add('hidden');
-            registrationScreen.classList.add('hidden');
-            farmScreen.classList.add('hidden');
-            profileScreen.classList.add('hidden');
-            notificationsScreen.classList.add('hidden');
-            guildScreen.classList.add('hidden');
-            guildMembersScreen.classList.add('hidden');
-            guildRequestsScreen.classList.add('hidden');
-            shopScreen.classList.add('hidden');
-            leaderboardScreen.classList.add('hidden');
-            adminPanel.classList.add('hidden');
-            // Hide new admin screens
-            document.getElementById('admin-broadcast-screen').classList.add('hidden');
-            document.getElementById('admin-analytics-screen').classList.add('hidden');
-            document.getElementById('admin-settings-screen').classList.add('hidden');
-            adminUsersScreen.classList.add('hidden');
-            adminGuildsScreen.classList.add('hidden');
-            mainMenu.classList.remove('hidden');
-            const user = users.find(u => u.id === currentUserId);
-            if (user && (user.ffId === '161686768' || user.phone === '+380689640782')) {
-                adminBtn.classList.remove('hidden');
-                updateAdminStats();
-            } else {
-                adminBtn.classList.add('hidden');
-            }
-            updateDiamondBalance();
-            updateNotificationBadge();
-        }
-
-        function updateFarmScreen() {
-            const user = users.find(u => u.id === currentUserId);
-            diamondCount.textContent = `${user.diamonds.toFixed(4)} 💎`;
-            tapCount.textContent = `Тапы: ${user.taps}/${user.maxTaps} | Уровень: ${user.level}`;
-            
-            // Check active boosters
-            const now = Date.now();
-            const userBoosters = activeBoosters[currentUserId] || {};
-            let boosterText = '';
-            
-            if (userBoosters.diamonds && userBoosters.diamonds > now) {
-                boosterText += ' 💎x3';
-                tapBtn.classList.add('pulse-animation');
-            }
-            if (userBoosters.mega && userBoosters.mega > now) {
-                boosterText += ' 🔥x5';
-                tapBtn.classList.add('pulse-animation');
-            }
-            if (user.vipUntil && user.vipUntil > now) {
-                boosterText += ' 👑VIP';
-            }
-            
-            if (boosterText) {
-                tapCount.textContent += boosterText;
-            } else {
-                tapBtn.classList.remove('pulse-animation');
-            }
-            
-            if (user.taps >= user.maxTaps) {
-                tapBtn.disabled = true;
-                cooldown.classList.remove('hidden');
-                startCooldown();
-            } else {
-                tapBtn.disabled = false;
-                cooldown.classList.add('hidden');
-            }
-        }
-
-        function updateProfileScreen() {
-            const user = users.find(u => u.id === currentUserId);
-            const now = Date.now();
-            const isVip = user.vipUntil && user.vipUntil > now;
-            
-            // Player Stats
-            document.getElementById('profile-username').textContent = `${user.username}${isVip ? ' 👑' : ''}`;
-            document.getElementById('profile-level').textContent = `Уровень: ${user.level}`;
-            document.getElementById('profile-experience').textContent = `Опыт: ${user.experience}/${user.level * 100}`;
-            document.getElementById('profile-energy').textContent = `Макс. тапов: ${user.maxTaps} (${user.taps} использовано)`;
-            document.getElementById('profile-diamonds').textContent = `Баланс: ${user.diamonds.toFixed(4)} 💎`;
-            document.getElementById('profile-total-stats').textContent = `Всего тапов: ${user.totalTaps} | Всего алмазов: ${user.totalDiamonds.toFixed(4)}`;
-            
-            // VIP Status
-            if (isVip) {
-                const vipEnd = new Date(user.vipUntil).toLocaleDateString();
-                document.getElementById('profile-vip-status').textContent = `👑 VIP до: ${vipEnd}`;
-                document.getElementById('profile-vip-status').className = 'text-sm text-yellow-400';
-                document.getElementById('profile-username').classList.add('vip-user');
-            } else {
-                document.getElementById('profile-vip-status').textContent = 'Обычный аккаунт';
-                document.getElementById('profile-vip-status').className = 'text-sm text-gray-400';
-            }
-            
-            // Account Info
-            document.getElementById('profile-phone').textContent = `Телефон: ${user.phone}`;
-            document.getElementById('profile-email').textContent = `Почта: ${user.email}`;
-            document.getElementById('profile-ff-id').textContent = `Free Fire ID: ${user.ffId}`;
-            document.getElementById('profile-password').textContent = `Пароль: ${user.password}`;
-            
-            // Active Boosters
-            const userBoosters = activeBoosters[currentUserId] || {};
-            const activeBoostersDiv = document.getElementById('active-boosters-list');
-            const profileBoostersDiv = document.getElementById('profile-boosters');
-            
-            activeBoostersDiv.innerHTML = '';
-            let hasActiveBoosters = false;
-            
-            Object.keys(userBoosters).forEach(boosterType => {
-                if (userBoosters[boosterType] > now) {
-                    hasActiveBoosters = true;
-                    const timeLeft = userBoosters[boosterType] - now;
-                    const minutes = Math.floor(timeLeft / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                    
-                    const boosterNames = {
-                        speed: '🚀 Ускорение тапов x2',
-                        diamonds: '💎 Утроенные алмазы x3',
-                        mega: '🔥 Мега буст x5'
-                    };
-                    
-                    const p = document.createElement('p');
-                    p.className = 'text-sm';
-                    p.textContent = `${boosterNames[boosterType] || boosterType}: ${minutes}м ${seconds}с`;
-                    activeBoostersDiv.appendChild(p);
-                }
-            });
-            
-            if (hasActiveBoosters) {
-                profileBoostersDiv.classList.remove('hidden');
-            } else {
-                profileBoostersDiv.classList.add('hidden');
-            }
-        }
-
-        function updateNotificationsScreen() {
-            notificationsList.innerHTML = '';
-            const userNotifications = notifications.filter(n => n.userId === currentUserId);
-            if (userNotifications.length === 0) {
-                notificationsList.innerHTML = '<p class="text-lg text-center">Нет уведомлений</p>';
-            } else {
-                userNotifications.forEach(notification => {
-                    const div = document.createElement('div');
-                    div.className = `p-3 rounded mb-2 ${notification.read ? 'bg-gray-700' : 'bg-blue-800'}`;
-                    div.innerHTML = `
-                        <p class="text-sm">${notification.message}</p>
-                        <p class="text-xs text-gray-400 mt-1">${notification.timestamp}</p>
-                    `;
-                    div.addEventListener('click', () => {
-                        if (!notification.read) {
-                            notification.read = true;
-                            localStorage.setItem('notifications', JSON.stringify(notifications));
-                            updateNotificationBadge();
-                            div.className = 'p-3 rounded mb-2 bg-gray-700';
-                        }
-                    });
-                    notificationsList.appendChild(div);
-                });
-            }
-            
-            // Автоматически помечаем все уведомления как прочитанные через 3 секунды
-            setTimeout(() => {
-                let updated = false;
-                userNotifications.forEach(notification => {
-                    if (!notification.read) {
-                        notification.read = true;
-                        updated = true;
-                    }
-                });
-                if (updated) {
-                    localStorage.setItem('notifications', JSON.stringify(notifications));
-                    updateNotificationBadge();
-                }
-            }, 3000);
-        }
-
-        function updateNotificationBadge() {
-            const unreadNotifications = notifications.filter(n => n.userId === currentUserId && !n.read);
-            if (unreadNotifications.length > 0) {
-                notificationBadge.textContent = unreadNotifications.length;
-                notificationBadge.classList.remove('hidden');
-            } else {
-                notificationBadge.classList.add('hidden');
-            }
-        }
-
-        function updateGuildScreen() {
-            const user = users.find(u => u.id === currentUserId);
-            createGuildBtn.classList.add('hidden');
-            guildNameInput.classList.add('hidden');
-            joinGuildBtn.classList.add('hidden');
-            guildSelect.classList.add('hidden');
-            leaveGuildBtn.classList.add('hidden');
-            disbandGuildBtn.classList.add('hidden');
-            guildRequestsBtn.classList.add('hidden');
-            guildMembersBtn.classList.add('hidden');
-
-            if (user.guildId) {
-                const guild = guilds.find(g => g.id === user.guildId);
-                guildStatus.textContent = `Вы состоите в гильдии: ${guild.name}`;
-                guildMembersBtn.classList.remove('hidden');
-                if (guild.leaderId === currentUserId) {
-                    disbandGuildBtn.classList.remove('hidden');
-                    guildRequestsBtn.classList.remove('hidden');
-                } else {
-                    leaveGuildBtn.classList.remove('hidden');
-                }
-            } else {
-                guildStatus.textContent = 'Вы не состоите в гильдии';
-                createGuildBtn.classList.remove('hidden');
-                guildNameInput.classList.remove('hidden');
-                joinGuildBtn.classList.remove('hidden');
-                guildSelect.classList.remove('hidden');
-            }
-
-            guildSelect.innerHTML = '<option value="">Выберите гильдию</option>';
-            guilds.forEach(guild => {
-                const option = document.createElement('option');
-                option.value = guild.id;
-                option.textContent = guild.name;
-                guildSelect.appendChild(option);
-            });
-        }
-
-        function updateGuildMembersScreen() {
-            const user = users.find(u => u.id === currentUserId);
-            const guild = guilds.find(g => g.id === user.guildId);
-            guildMembersList.innerHTML = '';
-            guild.members.forEach(memberId => {
-                const member = users.find(u => u.id === memberId);
-                const p = document.createElement('p');
-                p.textContent = `${member.username}${memberId === guild.leaderId ? ' (Лидер)' : ''}`;
-                guildMembersList.appendChild(p);
-            });
-        }
-
-        function updateGuildRequestsScreen() {
-            const user = users.find(u => u.id === currentUserId);
-            const guild = guilds.find(g => g.id === user.guildId);
-            guildRequestsList.innerHTML = '';
-            guild.requests.forEach(requestId => {
-                const requester = users.find(u => u.id === requestId);
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center';
-                div.innerHTML = `
-                    <p>${requester.username}</p>
-                    <div>
-                        <button class="accept-request-btn p-1 bg-green-600 rounded hover:bg-green-700 text-sm" data-user-id="${requestId}">Принять</button>
-                        <button class="reject-request-btn p-1 bg-red-600 rounded hover:bg-red-700 text-sm" data-user-id="${requestId}">Отклонить</button>
-                    </div>
-                `;
-                guildRequestsList.appendChild(div);
-            });
-
-            document.querySelectorAll('.accept-request-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const userId = btn.getAttribute('data-user-id');
-                    const guild = guilds.find(g => g.id === user.guildId);
-                    guild.requests = guild.requests.filter(r => r !== userId);
-                    guild.members.push(userId);
-                    const requester = users.find(u => u.id === userId);
-                    requester.guildId = guild.id;
-                    notifications.push({
-                        id: generateUUID(),
-                        userId: userId,
-                        message: `Ваша заявка в гильдию ${guild.name} принята`,
-                        timestamp: new Date().toLocaleString()
-                    });
-                    localStorage.setItem('users', JSON.stringify(users));
-                    localStorage.setItem('guilds', JSON.stringify(guilds));
-                    localStorage.setItem('notifications', JSON.stringify(notifications));
-                    updateGuildRequestsScreen();
-                    updateNotificationBadge();
-                    alert('Заявка принята!');
-                });
-            });
-
-            document.querySelectorAll('.reject-request-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const userId = btn.getAttribute('data-user-id');
-                    const guild = guilds.find(g => g.id === user.guildId);
-                    guild.requests = guild.requests.filter(r => r !== userId);
-                    notifications.push({
-                        id: generateUUID(),
-                        userId: userId,
-                        message: `Ваша заявка в гильдию ${guild.name} отклонена`,
-                        timestamp: new Date().toLocaleString()
-                    });
-                    localStorage.setItem('guilds', JSON.stringify(guilds));
-                    localStorage.setItem('notifications', JSON.stringify(notifications));
-                    updateGuildRequestsScreen();
-                    updateNotificationBadge();
-                    alert('Заявка отклонена!');
-                });
-            });
-        }
-
-        function updateAdminUsersScreen() {
-            userSelect.innerHTML = '';
-            users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.id;
-                option.textContent = `${user.username}`;
-                userSelect.appendChild(option);
-            });
-            const selectedUser = users.find(u => u.id === userSelect.value);
-            if (selectedUser) {
-                adminUsername.value = selectedUser.username;
-                adminPhone.value = selectedUser.phone;
-                adminEmail.value = selectedUser.email;
-                adminFfId.value = selectedUser.ffId;
-                adminPassword.value = selectedUser.password;
-                adminDiamonds.value = selectedUser.diamonds.toFixed(4);
-            }
-        }
-
-        function updateAdminGuildsScreen() {
-            guildSelectAdmin.innerHTML = '<option value="">Выберите гильдию</option>';
-            guilds.forEach(guild => {
-                const leader = users.find(u => u.id === guild.leaderId);
-                const option = document.createElement('option');
-                option.value = guild.id;
-                option.textContent = `${guild.name} (Лидер: ${leader ? leader.username : 'Неизвестно'})`;
-                guildSelectAdmin.appendChild(option);
-            });
-
-            const selectedGuild = guilds.find(g => g.id === guildSelectAdmin.value);
-            if (selectedGuild) {
-                adminGuildName.value = selectedGuild.name;
-                adminGuildLeader.innerHTML = '';
-                selectedGuild.members.forEach(memberId => {
-                    const member = users.find(u => u.id === memberId);
-                    const option = document.createElement('option');
-                    option.value = member.id;
-                    option.textContent = `${member.username}`;
-                    if (member.id === selectedGuild.leaderId) {
-                        option.selected = true;
-                    }
-                    adminGuildLeader.appendChild(option);
-                });
-
-                adminGuildMembers.innerHTML = '';
-                selectedGuild.members.forEach(memberId => {
-                    const member = users.find(u => u.id === memberId);
-                    const p = document.createElement('p');
-                    p.textContent = `${member.username}${memberId === selectedGuild.leaderId ? ' (Лидер)' : ''}`;
-                    adminGuildMembers.appendChild(p);
-                });
-
-                adminGuildRequests.innerHTML = '';
-                selectedGuild.requests.forEach(requestId => {
-                    const requester = users.find(u => u.id === requestId);
-                    const div = document.createElement('div');
-                    div.className = 'flex justify-between items-center';
-                    div.innerHTML = `
-                        <p>${requester.username}</p>
-                        <div>
-                            <button class="admin-accept-request-btn p-1 bg-green-600 rounded hover:bg-green-700 text-sm" data-user-id="${requestId}">Принять</button>
-                            <button class="admin-reject-request-btn p-1 bg-red-600 rounded hover:bg-red-700 text-sm" data-user-id="${requestId}">Отклонить</button>
-                        </div>
-                    `;
-                    adminGuildRequests.appendChild(div);
-                });
-
-                document.querySelectorAll('.admin-accept-request-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const userId = btn.getAttribute('data-user-id');
-                        const guild = guilds.find(g => g.id === selectedGuild.id);
-                        guild.requests = guild.requests.filter(r => r !== userId);
-                        guild.members.push(userId);
-                        const requester = users.find(u => u.id === userId);
-                        requester.guildId = guild.id;
-                        notifications.push({
-                            id: generateUUID(),
-                            userId: userId,
-                            message: `Ваша заявка в гильдию ${guild.name} принята`,
-                            timestamp: new Date().toLocaleString()
-                        });
-                        localStorage.setItem('users', JSON.stringify(users));
-                        localStorage.setItem('guilds', JSON.stringify(guilds));
-                        localStorage.setItem('notifications', JSON.stringify(notifications));
-                        updateAdminGuildsScreen();
-                        updateNotificationBadge();
-                        alert('Заявка принята!');
-                    });
-                });
-
-                document.querySelectorAll('.admin-reject-request-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const userId = btn.getAttribute('data-user-id');
-                        const guild = guilds.find(g => g.id === selectedGuild.id);
-                        guild.requests = guild.requests.filter(r => r !== userId);
-                        notifications.push({
-                            id: generateUUID(),
-                            userId: userId,
-                            message: `Ваша заявка в гильдию ${guild.name} отклонена`,
-                            timestamp: new Date().toLocaleString()
-                        });
-                        localStorage.setItem('guilds', JSON.stringify(guilds));
-                        localStorage.setItem('notifications', JSON.stringify(notifications));
-                        updateAdminGuildsScreen();
-                        updateNotificationBadge();
-                        alert('Заявка отклонена!');
-                    });
-                });
-            } else {
-                adminGuildName.value = '';
-                adminGuildLeader.innerHTML = '';
-                adminGuildMembers.innerHTML = '';
-                adminGuildRequests.innerHTML = '';
-            }
-        }
-
-        function updateShopScreen() {
-            const user = users.find(u => u.id === currentUserId);
-            document.getElementById('shop-diamond-balance').textContent = `${user.diamonds.toFixed(4)} 💎`;
-            
-            // Обновляем панель недавних покупок
-            updateRecentPurchases();
-        }
-        
-        // Система недавних покупок
-        let recentPurchases = JSON.parse(localStorage.getItem('recentPurchases')) || [];
-        
-        // Массивы имен на разных языках
-        const customerNames = {
-            russian: ['Александр', 'Дмитрий', 'Михаил', 'Андрей', 'Сергей', 'Владимир', 'Алексей', 'Иван', 'Николай', 'Роман'],
-            english: ['James', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Christopher', 'Charles', 'Daniel'],
-            arabic: ['محمد', 'أحمد', 'علي', 'حسن', 'محمود', 'يوسف', 'خالد', 'عمر', 'سعد', 'فيصل'],
-            turkish: ['Mehmet', 'Mustafa', 'Ahmet', 'Ali', 'Hasan', 'Hüseyin', 'İbrahim', 'Ömer', 'Yusuf', 'Osman']
-        };
-        
-        const productTypes = [
-            '🚀 Ускорение тапов x2',
-            '💎 Утроенные алмазы x3', 
-            '⚡ Дополнительные тапы +50',
-            '🔥 Мега буст x5',
-            '👑 VIP статус'
-        ];
-        
-        function addRecentPurchase(itemName, price, currency) {
-            const languages = Object.keys(customerNames);
-            const randomLanguage = languages[Math.floor(Math.random() * languages.length)];
-            const names = customerNames[randomLanguage];
-            const randomName = names[Math.floor(Math.random() * names.length)];
-            
-            const purchase = {
-                id: generateUUID(),
-                customerName: randomName,
-                language: randomLanguage,
-                item: itemName,
-                price: price,
-                currency: currency,
-                timestamp: Date.now()
-            };
-            
-            recentPurchases.unshift(purchase);
-            
-            // Оставляем только последние 10 покупок
-            if (recentPurchases.length > 10) {
-                recentPurchases = recentPurchases.slice(0, 10);
-            }
-            
-            localStorage.setItem('recentPurchases', JSON.stringify(recentPurchases));
-            updateRecentPurchases();
-        }
-        
-        function generateRandomPurchase() {
-            const languages = Object.keys(customerNames);
-            const randomLanguage = languages[Math.floor(Math.random() * languages.length)];
-            const names = customerNames[randomLanguage];
-            const randomName = names[Math.floor(Math.random() * names.length)];
-            
-            // Только поддержка проекта от 0.1 до 10 TON
-            const randomPrice = (Math.random() * 9.9 + 0.1).toFixed(1);
-            
-            const purchase = {
-                id: generateUUID(),
-                customerName: randomName,
-                language: randomLanguage,
-                item: 'Поддержка проекта',
-                price: randomPrice,
-                currency: 'TON',
-                timestamp: Date.now()
-            };
-            
-            recentPurchases.unshift(purchase);
-            
-            // Оставляем только последние 10 покупок
-            if (recentPurchases.length > 10) {
-                recentPurchases = recentPurchases.slice(0, 10);
-            }
-            
-            localStorage.setItem('recentPurchases', JSON.stringify(recentPurchases));
-            updateRecentPurchases();
-        }
-        
-        function updateRecentPurchases() {
-            const container = document.getElementById('recent-purchases');
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            if (recentPurchases.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-center text-sm">Пока нет покупок</p>';
-                return;
-            }
-            
-            recentPurchases.forEach(purchase => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded-lg text-sm';
-                
-                const timeAgo = Math.floor((Date.now() - purchase.timestamp) / 1000);
-                let timeText = '';
-                if (timeAgo < 60) {
-                    timeText = 'только что';
-                } else if (timeAgo < 3600) {
-                    timeText = `${Math.floor(timeAgo / 60)}м назад`;
-                } else {
-                    timeText = `${Math.floor(timeAgo / 3600)}ч назад`;
-                }
-                
-                div.innerHTML = `
-                    <div>
-                        <div class="font-semibold">${purchase.customerName}</div>
-                        <div class="text-xs text-gray-400">${purchase.item}</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-green-400 font-bold">${purchase.price} ${purchase.currency}</div>
-                        <div class="text-xs text-gray-400">${timeText}</div>
-                    </div>
-                `;
-                
-                container.appendChild(div);
-            });
-        }
-        
-        // Автоматическое добавление случайных покупок каждые 5 секунд
-        setInterval(() => {
-            if (Math.random() < 0.3) { // 30% шанс добавить покупку
-                generateRandomPurchase();
-            }
-        }, 5000);
-
-        // Обновление рейтинга каждые 5 минут
-        setInterval(() => {
-            randomLeaderboardUsers = generateRandomUsers();
-            updateLastUpdateTime();
-            if (document.getElementById('leaderboard-screen') && !document.getElementById('leaderboard-screen').classList.contains('hidden')) {
-                updateLeaderboard();
-            }
-        }, 5 * 60 * 1000); // 5 минут
-
-        function updateLastUpdateTime() {
-            const lastUpdateElement = document.getElementById('last-update-time');
-            if (lastUpdateElement) {
-                const now = new Date();
-                const timeString = now.toLocaleTimeString('ru-RU', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-                lastUpdateElement.textContent = `Последнее обновление: ${timeString}`;
-            }
-        }
-
-        // Список случайных имен для рейтинга
-        const randomNames = [
-            'Алексей', 'Мария', 'Дмитрий', 'Анна', 'Сергей', 'Елена', 'Андрей', 'Ольга',
-            'Владимир', 'Татьяна', 'Игорь', 'Наталья', 'Михаил', 'Ирина', 'Николай', 'Светлана',
-            'Павел', 'Юлия', 'Александр', 'Екатерина', 'Роман', 'Ангелина', 'Артем', 'Виктория',
-            'Максим', 'Кристина', 'Даниил', 'Алина', 'Кирилл', 'Полина', 'Иван', 'София',
-            'Георгий', 'Алиса', 'Тимофей', 'Василиса', 'Леонид', 'Ева', 'Матвей', 'Злата',
-            'Федор', 'Милана', 'Григорий', 'Арина', 'Константин', 'Варвара', 'Степан', 'Ульяна',
-            'Ярослав', 'Анжелика', 'Богдан', 'Ксения', 'Захар', 'Антонина', 'Арсений', 'Вероника'
-        ];
-
-        // Список случайных фамилий
-        const randomSurnames = [
-            'Иванов', 'Петров', 'Сидоров', 'Смирнов', 'Кузнецов', 'Попов', 'Васильев', 'Соколов',
-            'Михайлов', 'Новиков', 'Федоров', 'Морозов', 'Волков', 'Алексеев', 'Лебедев', 'Семенов',
-            'Егоров', 'Павлов', 'Козлов', 'Степанов', 'Николаев', 'Орлов', 'Андреев', 'Макаров',
-            'Никитин', 'Захаров', 'Зайцев', 'Соловьев', 'Борисов', 'Яковлев', 'Григорьев', 'Романов',
-            'Воробьев', 'Сергеев', 'Кузьмин', 'Фролов', 'Александров', 'Дмитриев', 'Королев', 'Гусев',
-            'Киселев', 'Ильин', 'Максимов', 'Поляков', 'Сорокин', 'Виноградов', 'Ковалев', 'Белов',
-            'Медведев', 'Антонов', 'Тарасов', 'Жуков', 'Баранов', 'Филиппов', 'Комаров', 'Давыдов'
-        ];
-
-        // Генерация случайных пользователей для рейтинга
-        function generateRandomUsers() {
-            const randomUsers = [];
-            for (let i = 0; i < 20; i++) {
-                const firstName = randomNames[Math.floor(Math.random() * randomNames.length)];
-                const lastName = randomSurnames[Math.floor(Math.random() * randomSurnames.length)];
-                const username = `${firstName}_${lastName}`;
-                const level = Math.floor(Math.random() * 50) + 1;
-                const totalDiamonds = Math.random() * 680.9 + 0.01; // От 0.01 до 680.9 алмазов
-                const isVip = Math.random() > 0.7; // 30% шанс быть VIP
-                
-                randomUsers.push({
-                    username: username,
-                    level: level,
-                    totalDiamonds: totalDiamonds,
-                    vipUntil: isVip ? Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000 : null
-                });
-            }
-            return randomUsers;
-        }
-
-        let randomLeaderboardUsers = generateRandomUsers();
-
-        function updateLeaderboard() {
-            updatePlayersRanking();
-            updateLastUpdateTime();
-        }
-
-        function updatePlayersRanking() {
-            const playersRankingDiv = document.getElementById('players-ranking');
-            playersRankingDiv.innerHTML = '';
-            
-            // Получаем текущего пользователя
-            const currentUser = users.find(u => u.id === currentUserId);
-            
-            // Сортируем случайных пользователей по алмазам
-            const sortedRandomUsers = [...randomLeaderboardUsers].sort((a, b) => b.totalDiamonds - a.totalDiamonds);
-            
-            // Добавляем личный рейтинг пользователя в начало
-            if (currentUser) {
-                const userRank = sortedRandomUsers.findIndex(u => u.totalDiamonds <= currentUser.totalDiamonds) + 1;
-                if (userRank === 0) userRank = sortedRandomUsers.length + 1;
-                
-                const personalDiv = document.createElement('div');
-                personalDiv.className = 'flex justify-between items-center p-2 bg-blue-700 rounded mb-2 border-2 border-blue-400';
-                
-                const isVip = currentUser.vipUntil && currentUser.vipUntil > Date.now();
-                
-                personalDiv.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-lg">👤</span>
-                        <span class="${isVip ? 'vip-user' : ''}">Вы (${userRank} место)${isVip ? ' 👑' : ''}</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm">${currentUser.totalDiamonds.toFixed(4)} 💎</div>
-                        <div class="text-xs text-gray-400">Уровень ${currentUser.level}</div>
-                    </div>
-                `;
-                playersRankingDiv.appendChild(personalDiv);
-            }
-            
-            sortedRandomUsers.slice(0, 10).forEach((user, index) => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center p-2 bg-gray-700 rounded mb-1';
-                
-                const rank = index + 1;
-                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-                const isVip = user.vipUntil && user.vipUntil > Date.now();
-                
-                div.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-lg">${medal}</span>
-                        <span class="${isVip ? 'vip-user' : ''}">${user.username}${isVip ? ' 👑' : ''}</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm">${user.totalDiamonds.toFixed(4)} 💎</div>
-                        <div class="text-xs text-gray-400">Уровень ${user.level}</div>
-                    </div>
-                `;
-                playersRankingDiv.appendChild(div);
-            });
-        }
-
-
-
-
-
-        function updateDiamondBalance() {
-            const user = users.find(u => u.id === currentUserId);
-            const now = Date.now();
-            const isVip = user.vipUntil && user.vipUntil > now;
-            
-            diamondBalance.textContent = `${user.diamonds.toFixed(4)} 💎`;
-            document.getElementById('user-level').textContent = `Уровень ${user.level}${isVip ? ' 👑' : ''}`;
-            
-            if (isVip) {
-                document.getElementById('user-level').classList.add('vip-user');
-            }
-        }
-
-        function startCooldown() {
-            const user = users.find(u => u.id === currentUserId);
-            const endTime = user.lastTapTime + 4 * 60 * 60 * 1000;
-            const interval = setInterval(() => {
-                const now = Date.now();
-                const timeLeft = endTime - now;
-                if (timeLeft <= 0) {
-                    user.taps = 0;
-                    localStorage.setItem('users', JSON.stringify(users));
-                    updateFarmScreen();
-                    clearInterval(interval);
-                } else {
-                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                    cooldown.textContent = `Осталось: ${hours}ч ${minutes}м ${seconds}с`;
-                }
-            }, 1000);
-        }
-
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-                const r = Math.random() * 16 | 0;
-                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            });
-        }
     </script>
 </body>
 </html>
