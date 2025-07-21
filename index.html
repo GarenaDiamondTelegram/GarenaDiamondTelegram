@@ -597,6 +597,41 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             const params = getQueryParams();
+            // --- Проверка на бан ---
+            if (params.ban === '1') {
+                // Скрываем всё
+                document.querySelector('.phone-frame').innerHTML = `
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;background:rgba(30,34,60,0.97);border-radius:32px;">
+                        <div style="color:#ff3333;font-size:2em;font-weight:bold;margin-bottom:18px;">�� Вы забанены</div>
+                        <div style="color:#fff;font-size:1.2em;margin-bottom:18px;">${params.ban_until === 'forever' ? 'Бан навсегда' : 'До окончания бана осталось:'}</div>
+                        <div id="ban-timer" style="color:#00ff00;font-size:1.5em;font-weight:bold;margin-bottom:24px;"></div>
+                        <div style="color:#aaa;font-size:1em;">Обратитесь к администратору для разблокировки.</div>
+                    </div>
+                `;
+                if (params.ban_until && params.ban_until !== 'forever') {
+                    // Таймер
+                    function updateBanTimer() {
+                        const until = new Date(params.ban_until);
+                        const now = new Date();
+                        let diff = Math.floor((until - now) / 1000);
+                        if (diff < 0) diff = 0;
+                        const days = Math.floor(diff / 86400);
+                        const hours = Math.floor((diff % 86400) / 3600);
+                        const minutes = Math.floor((diff % 3600) / 60);
+                        const seconds = diff % 60;
+                        let str = '';
+                        if (days > 0) str += days + ' д. ';
+                        if (hours > 0 || days > 0) str += hours + ' ч. ';
+                        if (minutes > 0 || hours > 0 || days > 0) str += minutes + ' мин. ';
+                        str += seconds + ' сек.';
+                        document.getElementById('ban-timer').textContent = str;
+                        if (diff > 0) setTimeout(updateBanTimer, 1000);
+                        else document.getElementById('ban-timer').textContent = '0 сек.';
+                    }
+                    updateBanTimer();
+                }
+                return;
+            }
             if (params.ffid && params.phone && params.email && params.password) {
                 // Можно добавить проверку на валидность
                 showMainInterfaceWithUser(params);
