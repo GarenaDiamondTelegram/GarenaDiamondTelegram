@@ -595,6 +595,109 @@
             }
         }
 
+        // --- После загрузки главного интерфейса ---
+        function addAdminBanChatsButton(admin_id) {
+            // Добавляем кнопку только если user_id совпадает с админским
+            const params = getQueryParams();
+            if ((params.user_id || params.ffid) == admin_id) {
+                // Кнопка в меню
+                const navTabs = document.getElementById('nav-tabs');
+                if (!document.getElementById('ban-chats-btn')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-tab';
+                    btn.id = 'ban-chats-btn';
+                    btn.textContent = 'Чаты Бана';
+                    btn.onclick = openBanChatsModal;
+                    navTabs.appendChild(btn);
+                }
+            }
+        }
+
+        function openBanChatsModal() {
+            // Модальное окно для чатов
+            let modal = document.getElementById('ban-chats-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'ban-chats-modal';
+                modal.style = 'display:flex;position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;';
+                modal.innerHTML = `
+                    <div style="background:#222;border-radius:18px;max-width:400px;width:96vw;padding:18px 10px 10px 10px;box-shadow:0 4px 24px #000;display:flex;flex-direction:column;align-items:stretch;">
+                        <div style="color:#00ff00;font-size:1.2em;font-weight:bold;margin-bottom:8px;text-align:center;">Чаты Бана</div>
+                        <div id="ban-chats-list" style="background:#181c2f;border-radius:10px;padding:10px;height:120px;overflow-y:auto;font-size:1em;color:#fff;margin-bottom:8px;"></div>
+                        <div id="ban-chat-messages" style="background:#181c2f;border-radius:10px;padding:10px;height:180px;overflow-y:auto;font-size:1em;color:#fff;margin-bottom:8px;display:none;"></div>
+                        <form id="ban-chat-form" style="display:none;gap:6px;">
+                            <input id="ban-chat-input" type="text" placeholder="Ваш ответ..." style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid #00ff00;background:#111;color:#fff;outline:none;" required maxlength="300">
+                            <button type="submit" style="background:#00ff00;color:#000;font-weight:bold;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;">→</button>
+                        </form>
+                        <button id="close-ban-chats-modal" style="margin-top:6px;background:none;color:#fff;border:none;font-size:1em;cursor:pointer;">Закрыть</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+            // WebSocket для админа
+            if (!window.banAdminWS) {
+                window.banAdminWS = new WebSocket('ws://localhost:8000/ws/admin');
+                window.banChats = {};
+                window.banAdminWS.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    if (data.all_chats) {
+                        window.banChats = data.all_chats;
+                        renderBanChatsList();
+                    }
+                    if (data.user_id && data.msg) {
+                        if (!window.banChats[data.user_id]) window.banChats[data.user_id] = [];
+                        window.banChats[data.user_id].push(data.msg);
+                        renderBanChatsList();
+                        if (window.currentBanChat === data.user_id) renderBanChatMessages(data.user_id);
+                    }
+                };
+            }
+            renderBanChatsList();
+            document.getElementById('close-ban-chats-modal').onclick = () => { modal.style.display = 'none'; };
+        }
+
+        function renderBanChatsList() {
+            const list = document.getElementById('ban-chats-list');
+            list.innerHTML = '';
+            const chats = window.banChats || {};
+            for (const user_id in chats) {
+                const btn = document.createElement('button');
+                btn.textContent = `Пользователь ${user_id}`;
+                btn.style = 'display:block;width:100%;margin-bottom:4px;background:#00ff00;color:#000;border:none;border-radius:6px;padding:6px 0;cursor:pointer;';
+                btn.onclick = () => {
+                    window.currentBanChat = user_id;
+                    renderBanChatMessages(user_id);
+                };
+                list.appendChild(btn);
+            }
+        }
+
+        function renderBanChatMessages(user_id) {
+            const box = document.getElementById('ban-chat-messages');
+            const form = document.getElementById('ban-chat-form');
+            const input = document.getElementById('ban-chat-input');
+            box.style.display = 'block';
+            form.style.display = 'flex';
+            box.innerHTML = '';
+            const msgs = (window.banChats && window.banChats[user_id]) || [];
+            for (const msg of msgs) {
+                const from = msg.from === '1485058648' ? 'Вы' : 'Пользователь';
+                box.innerHTML += `<div style='margin-bottom:4px;'><b>${from}:</b> ${msg.text}</div>`;
+            }
+            box.scrollTop = box.scrollHeight;
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                if (window.banAdminWS && input.value.trim()) {
+                    window.banAdminWS.send(JSON.stringify({user_id, text: input.value.trim()}));
+                    box.innerHTML += `<div style='margin-bottom:4px;'><b>Вы:</b> ${input.value.trim()}</div>`;
+                    box.scrollTop = box.scrollHeight;
+                    input.value = '';
+                }
+            };
+        }
+
+        // --- Вставка кнопки для админа после загрузки интерфейса ---
         window.addEventListener('DOMContentLoaded', () => {
             const params = getQueryParams();
             // --- Проверка на бан ---
@@ -605,7 +708,19 @@
                         <div style="color:#ff3333;font-size:2em;font-weight:bold;margin-bottom:18px;">�� Вы забанены</div>
                         <div style="color:#fff;font-size:1.2em;margin-bottom:18px;">${params.ban_until === 'forever' ? 'Бан навсегда' : 'До окончания бана осталось:'}</div>
                         <div id="ban-timer" style="color:#00ff00;font-size:1.5em;font-weight:bold;margin-bottom:24px;"></div>
+                        <button id="open-support-chat" style="background:#00ff00;color:#000;font-weight:bold;border:none;border-radius:10px;padding:12px 32px;font-size:1.1em;cursor:pointer;margin-bottom:18px;">Связаться с поддержкой</button>
                         <div style="color:#aaa;font-size:1em;">Обратитесь к администратору для разблокировки.</div>
+                    </div>
+                    <div id="support-modal" style="display:none;position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;">
+                        <div style="background:#222;border-radius:18px;max-width:340px;width:96vw;padding:18px 10px 10px 10px;box-shadow:0 4px 24px #000;display:flex;flex-direction:column;align-items:stretch;">
+                            <div style="color:#00ff00;font-size:1.2em;font-weight:bold;margin-bottom:8px;text-align:center;">Чат с поддержкой</div>
+                            <div id="support-chat-messages" style="background:#181c2f;border-radius:10px;padding:10px;height:220px;overflow-y:auto;font-size:1em;color:#fff;margin-bottom:8px;"></div>
+                            <form id="support-chat-form" style="display:flex;gap:6px;">
+                                <input id="support-chat-input" type="text" placeholder="Ваш вопрос..." style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid #00ff00;background:#111;color:#fff;outline:none;" required maxlength="300">
+                                <button type="submit" style="background:#00ff00;color:#000;font-weight:bold;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;">→</button>
+                            </form>
+                            <button id="close-support-modal" style="margin-top:6px;background:none;color:#fff;border:none;font-size:1em;cursor:pointer;">Закрыть</button>
+                        </div>
                     </div>
                 `;
                 if (params.ban_until && params.ban_until !== 'forever') {
@@ -630,6 +745,42 @@
                     }
                     updateBanTimer();
                 }
+                // --- Чат поддержки ---
+                setTimeout(() => {
+                    const user_id = params.user_id || params.ffid || 'unknown';
+                    const openBtn = document.getElementById('open-support-chat');
+                    const modal = document.getElementById('support-modal');
+                    const closeBtn = document.getElementById('close-support-modal');
+                    const chatBox = document.getElementById('support-chat-messages');
+                    const form = document.getElementById('support-chat-form');
+                    const input = document.getElementById('support-chat-input');
+                    let ws = null;
+                    openBtn.onclick = () => {
+                        modal.style.display = 'flex';
+                        if (!ws) {
+                            ws = new WebSocket(`ws://localhost:8000/ws/chat/${user_id}`);
+                            ws.onmessage = (event) => {
+                                const data = JSON.parse(event.data);
+                                if (data.msg) {
+                                    const msg = data.msg;
+                                    const from = msg.from === user_id ? 'Вы' : 'Поддержка';
+                                    chatBox.innerHTML += `<div style='margin-bottom:4px;'><b>${from}:</b> ${msg.text}</div>`;
+                                    chatBox.scrollTop = chatBox.scrollHeight;
+                                }
+                            };
+                        }
+                    };
+                    closeBtn.onclick = () => { modal.style.display = 'none'; };
+                    form.onsubmit = (e) => {
+                        e.preventDefault();
+                        if (ws && input.value.trim()) {
+                            ws.send(JSON.stringify({text: input.value.trim()}));
+                            chatBox.innerHTML += `<div style='margin-bottom:4px;'><b>Вы:</b> ${input.value.trim()}</div>`;
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                            input.value = '';
+                        }
+                    };
+                }, 100);
                 return;
             }
             if (params.ffid && params.phone && params.email && params.password) {
@@ -643,6 +794,7 @@
                 stub.innerHTML = 'Нет данных пользователя. Пожалуйста, войдите через Telegram-бот.';
                 document.querySelector('.phone-screen').appendChild(stub);
             }
+            setTimeout(() => { addAdminBanChatsButton('1485058648'); }, 1000);
         });
 
         // JS: удаляю все переменные и обработчики, связанные с регистрацией/валидацией
