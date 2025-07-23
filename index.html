@@ -46,49 +46,13 @@
             border-radius: 0 0 20px 20px;
             z-index: 10;
         }
-        .desktop-warning {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-        }
-        .desktop-warning-content {
-            background: #333;
-            border-radius: 20px;
-            padding: 40px 30px;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .desktop-warning h2 {
-            color: #ff0000;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-        }
-        .desktop-warning p {
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .mobile-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-        }
         .particles {
             position: absolute;
             left: 0; top: 0; width: 100%; height: 100%;
             pointer-events: none;
             z-index: 0;
         }
-        .loader-container, .farming-container {
+        .loader-container {
             background: rgba(30,34,60,0.92);
             border-radius: 32px;
             box-shadow: 0 8px 32px 0 #00ffe799, 0 1.5px 0 #fff1 inset;
@@ -160,207 +124,6 @@
             transition: opacity 0.5s;
             border-radius: 32px;
         }
-        .farming-btn {
-            margin-top: 40px;
-            font-size: 1.5em;
-            background: linear-gradient(90deg, #00ff00 0%, #00cc00 100%);
-            color: #fff;
-            border: none;
-            border-radius: 16px;
-            padding: 18px 48px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 12px #00ff0088;
-            transition: background 0.2s, transform 0.1s;
-        }
-        .farming-btn:active {
-            background: linear-gradient(90deg, #00cc00 0%, #00ff00 100%);
-            transform: scale(1.04);
-        }
-        .hidden { display: none !important; }
-        .main-interface {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: flex-start;
-            background: transparent;
-        }
-        .profile-bar {
-            display: flex;
-            align-items: center;
-            padding: 18px 18px 10px 18px;
-            background: rgba(30,34,60,0.92);
-            border-radius: 28px 28px 0 0;
-            box-shadow: 0 2px 12px #00ffe733;
-            margin-bottom: 8px;
-        }
-        .profile-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #222;
-            margin-right: 14px;
-            object-fit: cover;
-            border: 2px solid #00ff00;
-        }
-        .profile-info {
-            flex: 1;
-        }
-        .profile-name {
-            color: #fff;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        .profile-balance {
-            color: #00ff00;
-            font-size: 1em;
-            font-weight: bold;
-            margin-top: 2px;
-        }
-        .nav-tabs {
-            display: flex;
-            justify-content: space-between;
-            background: #181c2f;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 2px 12px #00ffe733;
-            padding: 8px 0;
-            margin-bottom: 8px;
-        }
-        .nav-tab {
-            flex: 1;
-            text-align: center;
-            color: #fff;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 8px 0 4px 0;
-            border: none;
-            background: none;
-            outline: none;
-            transition: color 0.2s;
-        }
-        .nav-tab.active {
-            color: #00ff00;
-            border-bottom: 2.5px solid #00ff00;
-        }
-        .tab-content {
-            flex: 1;
-            background: rgba(30,34,60,0.92);
-            border-radius: 20px;
-            margin: 0 0 8px 0;
-            padding: 18px 12px 12px 12px;
-            overflow-y: auto;
-            min-height: 180px;
-            color: #fff;
-            font-size: 1.1em;
-        }
-        .tab-title {
-            color: #00ff00;
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-        .tab-placeholder {
-            color: #aaa;
-            font-size: 1em;
-            margin-top: 10px;
-        }
-        .auth-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            background: rgba(30,34,60,0.92);
-            border-radius: 32px;
-            box-shadow: 0 8px 32px 0 #00ffe799, 0 1.5px 0 #fff1 inset;
-            padding: 24px 8px 8px 8px;
-            box-sizing: border-box;
-            overflow-y: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        .auth-container::-webkit-scrollbar { display: none; }
-        .auth-title {
-            color: #00ff00;
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 18px;
-        }
-        .auth-form {
-            width: 100%;
-            max-width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-        }
-        .auth-form input {
-            padding: 12px 14px;
-            border-radius: 10px;
-            border: 1.5px solid #222;
-            font-size: 1.1em;
-            background: #181c2f;
-            color: #fff;
-            outline: none;
-            transition: border 0.2s;
-        }
-        .auth-form input:focus {
-            border: 1.5px solid #00ff00;
-        }
-        .auth-form input:invalid {
-            border: 1.5px solid #ff3333;
-        }
-        .auth-hint {
-            font-size: 0.95em;
-            color: #00ff00;
-            margin-top: 2px;
-            min-height: 16px;
-        }
-        .auth-form label {
-            color: #fff;
-            font-size: 1em;
-            margin-bottom: 2px;
-        }
-        .auth-btn {
-            background: linear-gradient(90deg, #00ff00 0%, #00cc00 100%);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: 14px 0;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 8px;
-            box-shadow: 0 2px 8px #00ff0088;
-            transition: background 0.2s, transform 0.1s;
-        }
-        .auth-btn:active {
-            background: linear-gradient(90deg, #00cc00 0%, #00ff00 100%);
-            transform: scale(1.04);
-        }
-        .auth-error {
-            color: #ff3333;
-            font-size: 0.98em;
-            margin-top: 2px;
-            min-height: 18px;
-        }
-        .auth-switch {
-            color: #00ff00;
-            font-size: 0.98em;
-            margin-top: 10px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .password-strength {
-            font-size: 0.95em;
-            margin-top: 2px;
-        }
-        .password-strength.weak { color: #ff3333; }
-        .password-strength.medium { color: #ffae00; }
-        .password-strength.strong { color: #00ff00; }
         @media (max-width: 480px) {
             .phone-frame {
                 width: 100vw;
@@ -381,7 +144,6 @@
     </style>
 </head>
 <body>
-    <div class="desktop-warning" id="desktop-warning" style="display:none;"></div>
     <div class="phone-frame">
         <div class="phone-notch"></div>
         <div class="phone-screen">
@@ -392,40 +154,24 @@
                     <div class="progress-inner" id="progress-inner"></div>
                 </div>
                 <div class="loader-percent" id="loader-percent">0%</div>
-                <div class="loader-ready" id="loader-ready">Нажмите для входа в зону</div>
             </div>
-            <div class="flash" id="flash"></div>
-            <div class="farming-container hidden" id="farming-page">
-                <div class="main-interface" id="main-interface">
-                    <div class="profile-bar">
-                        <img class="profile-avatar" id="profile-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=User" alt="avatar">
-                        <div class="profile-info">
-                            <div class="profile-name" id="profile-name">User</div>
-                            <div class="profile-balance" id="profile-balance">💎 0</div>
-                        </div>
-                    </div>
-                    <div class="nav-tabs" id="nav-tabs">
-                        <button class="nav-tab active" data-tab="farm">Фарм</button>
-                        <button class="nav-tab" data-tab="profile">Профиль</button>
-                        <button class="nav-tab" data-tab="balance">Баланс</button>
-                        <button class="nav-tab" data-tab="guild">Гильдия</button>
-                        <button class="nav-tab" data-tab="rating">Рейтинг</button>
-                        <button class="nav-tab" data-tab="shop">Магазин</button>
-                        <button class="nav-tab" data-tab="guild-chat">Чат гильдии</button>
-                        <button class="nav-tab" data-tab="global-chat">Общий чат</button>
-                    </div>
-                    <div class="tab-content" id="tab-content">
-                        <div class="tab-title">Фарм</div>
-                        <div class="tab-placeholder">Здесь будет фарм алмазов.</div>
-                    </div>
+            <div class="rotate-hint" id="rotate-hint" style="display:none; position:absolute; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.92); border-radius:32px; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10;">
+                <div style="color:#00ffe7; font-size:1.5em; font-weight:bold; margin-bottom:24px;">Переверните телефон</div>
+                <div id="phone-anim" style="width:120px; height:240px; margin-bottom:24px;">
+                    <svg id="phone-svg" width="120" height="240" viewBox="0 0 120 240">
+                        <rect x="10" y="20" width="100" height="200" rx="24" fill="#222" stroke="#00ffe7" stroke-width="4"/>
+                        <rect x="40" y="200" width="40" height="8" rx="4" fill="#00ffe7"/>
+                    </svg>
                 </div>
             </div>
+            <div class="landscape-ui" id="landscape-ui" style="display:none; position:absolute; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.92); border-radius:32px; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:20; transform: rotate(0deg);">
+                <button id="start-btn" style="font-size:1.5em; background:linear-gradient(90deg,#00ff00 0%,#00cc00 100%); color:#fff; border:none; border-radius:16px; padding:18px 48px; font-weight:bold; cursor:pointer; box-shadow:0 2px 12px #00ff0088;">Начать</button>
+                <div id="work-text" style="color:#00ffe7; font-size:1.5em; font-weight:bold; margin-top:32px; display:none;">Работает</div>
+            </div>
+            <div class="flash" id="flash"></div>
         </div>
     </div>
     <script>
-        // Удаляю проверку на мобильное устройство и скрываю предупреждение
-        document.getElementById('desktop-warning').style.display = 'none';
-
         // --- Частицы ---
         const canvas = document.getElementById('particles');
         const ctx = canvas.getContext('2d');
@@ -463,16 +209,18 @@
         // --- Загрузка ---
         const progressInner = document.getElementById('progress-inner');
         const loaderPercent = document.getElementById('loader-percent');
-        const loaderReady = document.getElementById('loader-ready');
         const loader = document.getElementById('loader');
-        const flash = document.getElementById('flash');
-        const farmingPage = document.getElementById('farming-page');
-        const farmingBtn = document.getElementById('farming-btn');
         const duration = 7000; // 7 секунд
         const steps = 140;
         let currentStep = 0;
         let progress = 0;
         let loading = true;
+        const rotateHint = document.getElementById('rotate-hint');
+        const phoneAnim = document.getElementById('phone-anim');
+        const phoneSvg = document.getElementById('phone-svg');
+        const landscapeUI = document.getElementById('landscape-ui');
+        const startBtn = document.getElementById('start-btn');
+        const workText = document.getElementById('work-text');
         function animate() {
             if (!loading) return;
             currentStep++;
@@ -482,322 +230,58 @@
             if (progress < 1) {
                 setTimeout(animate, duration / steps);
             } else {
-                loaderReady.style.display = 'block';
-                loading = false;
+                // Показываем подсказку перевернуть телефон
+                rotateHint.style.display = 'flex';
+                // Анимация вращения SVG телефона
+                let angle = 0;
+                let animDir = 1;
+                function rotatePhone() {
+                    angle += animDir * 2;
+                    if (angle > 90) animDir = -1;
+                    if (angle < 0) animDir = 1;
+                    phoneSvg.style.transform = `rotate(${angle}deg)`;
+                    if (rotateHint.style.display === 'flex') {
+                        requestAnimationFrame(rotatePhone);
+                    } else {
+                        phoneSvg.style.transform = 'rotate(0deg)';
+                    }
+                }
+                rotatePhone();
             }
         }
         animate();
-        // Клик для входа
-        loader.addEventListener('click', () => {
-            if (!loading) {
-                flash.style.opacity = 0;
-                flash.classList.remove('hidden');
-                setTimeout(() => {
-                    flash.style.transition = 'opacity 0.5s';
-                    flash.style.opacity = 1;
-                    setTimeout(() => {
-                        loader.classList.add('hidden');
-                        flash.style.opacity = 0;
-                        setTimeout(() => {
-                            flash.classList.add('hidden');
-                            document.getElementById('main-interface').classList.remove('hidden');
-                        }, 500);
-                    }, 400);
-                }, 10);
-            }
-        });
-        // Клик по кнопке Фарминг (заглушка, переход к фарму реализую далее)
-        farmingBtn.addEventListener('click', () => {
-            alert('Переход к фарму (будет реализовано далее)');
-        });
 
-        // --- Навигация по вкладкам ---
-        const navTabs = document.querySelectorAll('.nav-tab');
-        const tabContent = document.getElementById('tab-content');
-        navTabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                navTabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                const tabName = this.getAttribute('data-tab');
-                renderTab(tabName);
-            });
-        });
-        function renderTab(tab) {
-            if (tab === 'farm') {
-                tabContent.innerHTML = '<div class="tab-title">Фарм</div><div class="tab-placeholder">Здесь будет фарм алмазов.</div>';
-            } else if (tab === 'profile') {
-                tabContent.innerHTML = '<div class="tab-title">Профиль</div><div class="tab-placeholder">Информация о пользователе.</div>';
-            } else if (tab === 'balance') {
-                tabContent.innerHTML = '<div class="tab-title">Баланс</div><div class="tab-placeholder">Ваши алмазы и история операций.</div>';
-            } else if (tab === 'guild') {
-                tabContent.innerHTML = '<div class="tab-title">Гильдия</div><div class="tab-placeholder">Информация о вашей гильдии.</div>';
-            } else if (tab === 'rating') {
-                tabContent.innerHTML = '<div class="tab-title">Рейтинг</div><div class="tab-placeholder">Таблица лидеров.</div>';
-            } else if (tab === 'shop') {
-                tabContent.innerHTML = '<div class="tab-title">Магазин</div><div class="tab-placeholder">Покупка улучшений и предметов.</div>';
-            } else if (tab === 'guild-chat') {
-                tabContent.innerHTML = '<div class="tab-title">Чат гильдии</div><div class="tab-placeholder">Чат вашей гильдии.</div>';
-            } else if (tab === 'global-chat') {
-                tabContent.innerHTML = '<div class="tab-title">Общий чат</div><div class="tab-placeholder">Общение со всеми игроками.</div>';
-            }
-        }
-
-        // --- Обновление профиля ---
-        function updateProfileBar(user) {
-            document.getElementById('profile-name').textContent = user.name || 'User';
-            document.getElementById('profile-balance').textContent = '💎 ' + (user.diamonds || 0);
-            document.getElementById('profile-avatar').src = user.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.ffid || 'User'}`;
-        }
-
-        function getQueryParams() {
-            const params = {};
-            window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(str, key, value) {
-                params[key] = decodeURIComponent(value);
-            });
-            return params;
-        }
-
-        function showMainInterfaceWithUser(user) {
-            document.getElementById('main-interface').classList.remove('hidden');
-            document.getElementById('profile-balance').textContent = '💎 0';
-            document.getElementById('profile-avatar').src = user.avatar ? user.avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${user.ffid || 'User'}`;
-            // --- Никнейм ---
-            let tgNick = user.tg_nick;
-            // Проверяем localStorage (если пользователь уже вводил ник)
-            if (!tgNick) {
-                tgNick = localStorage.getItem('tg_nick') || '';
-            }
-            if (!tgNick) {
-                // Показываем форму для ввода ника
-                const profileName = document.getElementById('profile-name');
-                profileName.innerHTML = `<form id="tg-nick-form" style="display:flex;gap:8px;align-items:center;">`
-                    + `<input id="tg-nick-input" type="text" placeholder="Введите ник" style="padding:4px 8px;border-radius:6px;border:1px solid #00ff00;outline:none;" maxlength="32" required>`
-                    + `<button type="submit" style="background:#00ff00;color:#000;font-weight:bold;border:none;border-radius:6px;padding:4px 14px;cursor:pointer;">Сохранить</button>`
-                    + `</form>`;
-                document.getElementById('profile-name').style.color = '#fff';
-                document.getElementById('profile-name').style.fontWeight = 'normal';
-                document.getElementById('profile-name').style.fontSize = '1em';
-                const form = document.getElementById('tg-nick-form');
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const input = document.getElementById('tg-nick-input');
-                    const value = input.value.trim();
-                    if (value.length > 0) {
-                        localStorage.setItem('tg_nick', value);
-                        document.getElementById('profile-name').textContent = value;
-                        document.getElementById('profile-name').style.color = '#fff';
-                        document.getElementById('profile-name').style.fontWeight = 'bold';
-                        document.getElementById('profile-name').style.fontSize = '1.1em';
-                    }
-                });
+        // --- Обработка поворота устройства ---
+        let landscape = false;
+        function checkOrientation() {
+            // Проверяем, горизонтальный ли режим
+            if (window.innerWidth > window.innerHeight + 40) {
+                if (!landscape) {
+                    landscape = true;
+                    rotateHint.style.display = 'none';
+                    landscapeUI.style.display = 'flex';
+                    // Поворачиваем интерфейс
+                    landscapeUI.style.transform = 'rotate(0deg)';
+                }
             } else {
-                document.getElementById('profile-name').textContent = tgNick;
-            }
-        }
-
-        // --- После загрузки главного интерфейса ---
-        function addAdminBanChatsButton(admin_id) {
-            // Добавляем кнопку только если user_id совпадает с админским
-            const params = getQueryParams();
-            if ((params.user_id || params.ffid) == admin_id) {
-                // Кнопка в меню
-                const navTabs = document.getElementById('nav-tabs');
-                if (!document.getElementById('ban-chats-btn')) {
-                    const btn = document.createElement('button');
-                    btn.className = 'nav-tab';
-                    btn.id = 'ban-chats-btn';
-                    btn.textContent = 'Чаты Бана';
-                    btn.onclick = openBanChatsModal;
-                    navTabs.appendChild(btn);
+                if (landscape) {
+                    landscape = false;
+                    landscapeUI.style.display = 'none';
+                    rotateHint.style.display = 'flex';
                 }
             }
         }
-
-        function openBanChatsModal() {
-            // Модальное окно для чатов
-            let modal = document.getElementById('ban-chats-modal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'ban-chats-modal';
-                modal.style = 'display:flex;position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;';
-                modal.innerHTML = `
-                    <div style="background:#222;border-radius:18px;max-width:400px;width:96vw;padding:18px 10px 10px 10px;box-shadow:0 4px 24px #000;display:flex;flex-direction:column;align-items:stretch;">
-                        <div style="color:#00ff00;font-size:1.2em;font-weight:bold;margin-bottom:8px;text-align:center;">Чаты Бана</div>
-                        <div id="ban-chats-list" style="background:#181c2f;border-radius:10px;padding:10px;height:120px;overflow-y:auto;font-size:1em;color:#fff;margin-bottom:8px;"></div>
-                        <div id="ban-chat-messages" style="background:#181c2f;border-radius:10px;padding:10px;height:180px;overflow-y:auto;font-size:1em;color:#fff;margin-bottom:8px;display:none;"></div>
-                        <form id="ban-chat-form" style="display:none;gap:6px;">
-                            <input id="ban-chat-input" type="text" placeholder="Ваш ответ..." style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid #00ff00;background:#111;color:#fff;outline:none;" required maxlength="300">
-                            <button type="submit" style="background:#00ff00;color:#000;font-weight:bold;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;">→</button>
-                        </form>
-                        <button id="close-ban-chats-modal" style="margin-top:6px;background:none;color:#fff;border:none;font-size:1em;cursor:pointer;">Закрыть</button>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-            modal.style.display = 'flex';
-            // WebSocket для админа
-            if (!window.banAdminWS) {
-                window.banAdminWS = new WebSocket('ws://localhost:8000/ws/admin');
-                window.banChats = {};
-                window.banAdminWS.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    if (data.all_chats) {
-                        window.banChats = data.all_chats;
-                        renderBanChatsList();
-                    }
-                    if (data.user_id && data.msg) {
-                        if (!window.banChats[data.user_id]) window.banChats[data.user_id] = [];
-                        window.banChats[data.user_id].push(data.msg);
-                        renderBanChatsList();
-                        if (window.currentBanChat === data.user_id) renderBanChatMessages(data.user_id);
-                    }
-                };
-            }
-            renderBanChatsList();
-            document.getElementById('close-ban-chats-modal').onclick = () => { modal.style.display = 'none'; };
-        }
-
-        function renderBanChatsList() {
-            const list = document.getElementById('ban-chats-list');
-            list.innerHTML = '';
-            const chats = window.banChats || {};
-            for (const user_id in chats) {
-                const btn = document.createElement('button');
-                btn.textContent = `Пользователь ${user_id}`;
-                btn.style = 'display:block;width:100%;margin-bottom:4px;background:#00ff00;color:#000;border:none;border-radius:6px;padding:6px 0;cursor:pointer;';
-                btn.onclick = () => {
-                    window.currentBanChat = user_id;
-                    renderBanChatMessages(user_id);
-                };
-                list.appendChild(btn);
-            }
-        }
-
-        function renderBanChatMessages(user_id) {
-            const box = document.getElementById('ban-chat-messages');
-            const form = document.getElementById('ban-chat-form');
-            const input = document.getElementById('ban-chat-input');
-            box.style.display = 'block';
-            form.style.display = 'flex';
-            box.innerHTML = '';
-            const msgs = (window.banChats && window.banChats[user_id]) || [];
-            for (const msg of msgs) {
-                const from = msg.from === '1485058648' ? 'Вы' : 'Пользователь';
-                box.innerHTML += `<div style='margin-bottom:4px;'><b>${from}:</b> ${msg.text}</div>`;
-            }
-            box.scrollTop = box.scrollHeight;
-            form.onsubmit = (e) => {
-                e.preventDefault();
-                if (window.banAdminWS && input.value.trim()) {
-                    window.banAdminWS.send(JSON.stringify({user_id, text: input.value.trim()}));
-                    box.innerHTML += `<div style='margin-bottom:4px;'><b>Вы:</b> ${input.value.trim()}</div>`;
-                    box.scrollTop = box.scrollHeight;
-                    input.value = '';
-                }
-            };
-        }
-
-        // --- Вставка кнопки для админа после загрузки интерфейса ---
-        window.addEventListener('DOMContentLoaded', () => {
-            const params = getQueryParams();
-            // --- Проверка на бан ---
-            if (params.ban === '1') {
-                // Скрываем всё
-                document.querySelector('.phone-frame').innerHTML = `
-                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;background:rgba(30,34,60,0.97);border-radius:32px;">
-                        <div style="color:#ff3333;font-size:2em;font-weight:bold;margin-bottom:18px;">�� Вы забанены</div>
-                        <div style="color:#fff;font-size:1.2em;margin-bottom:18px;">${params.ban_until === 'forever' ? 'Бан навсегда' : 'До окончания бана осталось:'}</div>
-                        <div id="ban-timer" style="color:#00ff00;font-size:1.5em;font-weight:bold;margin-bottom:24px;"></div>
-                        <button id="open-support-chat" style="background:#00ff00;color:#000;font-weight:bold;border:none;border-radius:10px;padding:12px 32px;font-size:1.1em;cursor:pointer;margin-bottom:18px;">Связаться с поддержкой</button>
-                        <div style="color:#aaa;font-size:1em;">Обратитесь к администратору для разблокировки.</div>
-                    </div>
-                    <div id="support-modal" style="display:none;position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;">
-                        <div style="background:#222;border-radius:18px;max-width:340px;width:96vw;padding:18px 10px 10px 10px;box-shadow:0 4px 24px #000;display:flex;flex-direction:column;align-items:stretch;">
-                            <div style="color:#00ff00;font-size:1.2em;font-weight:bold;margin-bottom:8px;text-align:center;">Чат с поддержкой</div>
-                            <div id="support-chat-messages" style="background:#181c2f;border-radius:10px;padding:10px;height:220px;overflow-y:auto;font-size:1em;color:#fff;margin-bottom:8px;"></div>
-                            <form id="support-chat-form" style="display:flex;gap:6px;">
-                                <input id="support-chat-input" type="text" placeholder="Ваш вопрос..." style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid #00ff00;background:#111;color:#fff;outline:none;" required maxlength="300">
-                                <button type="submit" style="background:#00ff00;color:#000;font-weight:bold;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;">→</button>
-                            </form>
-                            <button id="close-support-modal" style="margin-top:6px;background:none;color:#fff;border:none;font-size:1em;cursor:pointer;">Закрыть</button>
-                        </div>
-                    </div>
-                `;
-                if (params.ban_until && params.ban_until !== 'forever') {
-                    // Таймер
-                    function updateBanTimer() {
-                        const until = new Date(params.ban_until);
-                        const now = new Date();
-                        let diff = Math.floor((until - now) / 1000);
-                        if (diff < 0) diff = 0;
-                        const days = Math.floor(diff / 86400);
-                        const hours = Math.floor((diff % 86400) / 3600);
-                        const minutes = Math.floor((diff % 3600) / 60);
-                        const seconds = diff % 60;
-                        let str = '';
-                        if (days > 0) str += days + ' д. ';
-                        if (hours > 0 || days > 0) str += hours + ' ч. ';
-                        if (minutes > 0 || hours > 0 || days > 0) str += minutes + ' мин. ';
-                        str += seconds + ' сек.';
-                        document.getElementById('ban-timer').textContent = str;
-                        if (diff > 0) setTimeout(updateBanTimer, 1000);
-                        else document.getElementById('ban-timer').textContent = '0 сек.';
-                    }
-                    updateBanTimer();
-                }
-                // --- Чат поддержки ---
-                setTimeout(() => {
-                    const user_id = params.user_id || params.ffid || 'unknown';
-                    const openBtn = document.getElementById('open-support-chat');
-                    const modal = document.getElementById('support-modal');
-                    const closeBtn = document.getElementById('close-support-modal');
-                    const chatBox = document.getElementById('support-chat-messages');
-                    const form = document.getElementById('support-chat-form');
-                    const input = document.getElementById('support-chat-input');
-                    let ws = null;
-                    openBtn.onclick = () => {
-                        modal.style.display = 'flex';
-                        if (!ws) {
-                            ws = new WebSocket(`ws://localhost:8000/ws/chat/${user_id}`);
-                            ws.onmessage = (event) => {
-                                const data = JSON.parse(event.data);
-                                if (data.msg) {
-                                    const msg = data.msg;
-                                    const from = msg.from === user_id ? 'Вы' : 'Поддержка';
-                                    chatBox.innerHTML += `<div style='margin-bottom:4px;'><b>${from}:</b> ${msg.text}</div>`;
-                                    chatBox.scrollTop = chatBox.scrollHeight;
-                                }
-                            };
-                        }
-                    };
-                    closeBtn.onclick = () => { modal.style.display = 'none'; };
-                    form.onsubmit = (e) => {
-                        e.preventDefault();
-                        if (ws && input.value.trim()) {
-                            ws.send(JSON.stringify({text: input.value.trim()}));
-                            chatBox.innerHTML += `<div style='margin-bottom:4px;'><b>Вы:</b> ${input.value.trim()}</div>`;
-                            chatBox.scrollTop = chatBox.scrollHeight;
-                            input.value = '';
-                        }
-                    };
-                }, 100);
-                return;
-            }
-            if (params.ffid && params.phone && params.email && params.password) {
-                // Можно добавить проверку на валидность
-                showMainInterfaceWithUser(params);
-            } else {
-                // Если нет данных — показываем заглушку
-                document.getElementById('main-interface').classList.add('hidden');
-                const stub = document.createElement('div');
-                stub.style = 'color:#fff;text-align:center;padding:40px;font-size:1.2em;';
-                stub.innerHTML = 'Нет данных пользователя. Пожалуйста, войдите через Telegram-бот.';
-                document.querySelector('.phone-screen').appendChild(stub);
-            }
-            setTimeout(() => { addAdminBanChatsButton('1485058648'); }, 1000);
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        // Для десктопа — мышкой
+        window.addEventListener('mousemove', function() {
+            checkOrientation();
         });
-
-        // JS: удаляю все переменные и обработчики, связанные с регистрацией/валидацией
+        // Кнопка "Начать"
+        startBtn.addEventListener('click', function() {
+            startBtn.style.display = 'none';
+            workText.style.display = 'block';
+        });
     </script>
 </body>
 </html>
